@@ -1,126 +1,472 @@
-                <div id="estadoResultadosView" class="hidden max-w-7xl mx-auto space-y-8">
-            <!-- P&L Header -->
-            <div class="bg-sky-900 rounded-2xl shadow-xl border border-slate-100 overflow-hidden text-white p-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+<div id="cajaGeneralView" class="hidden max-w-7xl mx-auto space-y-8">
+    <!-- Header -->
+    <div class="bg-teal-900 rounded-3xl shadow-xl border border-slate-100 overflow-hidden text-white p-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div>
+            <h2 class="text-xl font-extrabold tracking-tight flex items-center gap-2">
+                <svg class="h-6 w-6 text-teal-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+                </svg>
+                Gestión de Caja General, Gastos del Hogar, Ingresos Externos y Metas
+            </h2>
+            <p class="text-xs text-teal-200 mt-1">Cruce directo entre la Caja Real Agrícola de cultivos, Ingresos Externos / Extras y egresos personales/familiares, junto con metas de ahorro con plazo definido.</p>
+        </div>
+        <!-- Botones de Exportación Personal -->
+        <div class="flex flex-wrap gap-2 w-full md:w-auto">
+            <button type="button" onclick="exportPersonalPDF()" class="flex items-center justify-center gap-2 bg-rose-600 hover:bg-rose-700 text-white px-4 py-2 rounded-xl font-bold text-xs shadow-sm transition cursor-pointer border border-rose-500/20">
+                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                </svg>
+                <span>Descargar Balance PDF</span>
+            </button>
+            <button type="button" onclick="exportPersonalExcel()" class="flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl font-bold text-xs shadow-sm transition cursor-pointer border border-emerald-500/20">
+                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                </svg>
+                <span>Exportar Excel</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- A. Tarjetas KPI de Balance General (Suma separada de Ingresos Agrícolas vs Ingresos Externos) -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        <div class="bg-white dark:bg-slate-900 rounded-3xl p-5 shadow-sm border border-slate-100 dark:border-slate-800 flex flex-col justify-between">
+            <div class="flex justify-between items-start">
                 <div>
-                    <h2 class="text-xl font-extrabold tracking-tight flex items-center gap-2">
-                        <svg class="h-6 w-6 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 002 2h2a2 2 0 002-2z"></path>
-                        </svg>
-                        Módulo de Estado de Resultados y Análisis de Variación
-                    </h2>
-                    <p class="text-xs text-sky-300 mt-1">Análisis financiero consolidado y seguimiento de las fluctuaciones de precios de insumos, cultivos y ventas en el tiempo.</p>
+                    <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Ingresos Agrícolas (Cosechas)</span>
+                    <h2 class="text-xl sm:text-2xl font-extrabold text-emerald-600 dark:text-emerald-400 mt-1" id="kpiCajaRealAgricola">$0</h2>
                 </div>
-                <span class="px-3 py-1 bg-sky-800 text-sky-300 text-[11px] font-bold uppercase tracking-wider rounded-full border border-sky-700/50">Análisis Financiero Activo</span>
+                <span class="p-2.5 bg-emerald-50 dark:bg-emerald-950 text-emerald-600 rounded-xl">
+                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </span>
             </div>
+            <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-4 pt-2 border-t border-slate-50 dark:border-slate-800">
+                Excedente líquido cobrado de cultivos
+            </p>
+        </div>
 
-            <!-- Resumen de Utilidades (Consolidated P&L Cards) -->
+        <div class="bg-white dark:bg-slate-900 rounded-3xl p-5 shadow-sm border border-slate-100 dark:border-slate-800 flex flex-col justify-between">
+            <div class="flex justify-between items-start">
+                <div>
+                    <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Ingresos Externos / Extras</span>
+                    <h2 class="text-xl sm:text-2xl font-extrabold text-indigo-600 dark:text-indigo-400 mt-1" id="kpiIngresosExternos">$0</h2>
+                </div>
+                <span class="p-2.5 bg-indigo-50 dark:bg-indigo-950 text-indigo-600 rounded-xl">
+                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                    </svg>
+                </span>
+            </div>
+            <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-4 pt-2 border-t border-slate-50 dark:border-slate-800">
+                Inyecciones de capital ajenas a la finca
+            </p>
+        </div>
+
+        <div class="bg-white dark:bg-slate-900 rounded-3xl p-5 shadow-sm border border-slate-100 dark:border-slate-800 flex flex-col justify-between">
+            <div class="flex justify-between items-start">
+                <div>
+                    <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Gastos Personales / Hogar</span>
+                    <h2 class="text-xl sm:text-2xl font-extrabold text-rose-600 dark:text-rose-400 mt-1" id="kpiGastosPersonales">$0</h2>
+                </div>
+                <span class="p-2.5 bg-rose-50 dark:bg-rose-950 text-rose-600 rounded-xl">
+                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+                    </svg>
+                </span>
+            </div>
+            <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-4 pt-2 border-t border-slate-50 dark:border-slate-800">
+                Egresos no agrícolas
+            </p>
+        </div>
+
+        <div class="bg-white dark:bg-slate-900 rounded-3xl p-5 shadow-sm border border-slate-100 dark:border-slate-800 flex flex-col justify-between">
+            <div class="flex justify-between items-start">
+                <div>
+                    <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Saldo Líquido Disponible</span>
+                    <h2 class="text-xl sm:text-2xl font-extrabold text-sky-600 dark:text-sky-400 mt-1" id="kpiSaldoLiquido">$0</h2>
+                </div>
+                <span id="kpiSaldoLiquidoBadge" class="p-2.5 bg-sky-50 dark:bg-sky-950 text-sky-600 rounded-xl">
+                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                    </svg>
+                </span>
+            </div>
+            <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-4 pt-2 border-t border-slate-50 dark:border-slate-800">
+                (Ingresos Finca + Extras) - Gastos Hogar
+            </p>
+        </div>
+    </div>
+
+    <!-- B. Formulario de Registro de Gastos Personales -->
+    <div class="bg-white dark:bg-slate-900 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 overflow-hidden p-6 space-y-6">
+        <div class="border-b border-slate-100 dark:border-slate-800 pb-4">
+            <h3 class="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                <span class="p-1.5 bg-rose-100 text-rose-800 rounded-lg">
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                    </svg>
+                </span>
+                Registrar Nuevo Gasto del Hogar / Personal
+            </h3>
+            <p class="text-xs text-slate-400 mt-1">Ingresa egresos no relacionados con la producción agrícola de la finca.</p>
+        </div>
+
+        <form id="gastoPersonalForm" onsubmit="handleGuardarGastoPersonal(event)" class="space-y-6">
             <div class="grid grid-cols-1 md:grid-cols-4 gap-5">
-                <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex flex-col justify-between">
-                    <div>
-                        <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Ventas Totales</span>
-                        <h2 class="text-xl sm:text-2xl font-extrabold text-emerald-600 mt-1" id="plVentas">$0</h2>
-                    </div>
-                    <p class="text-[10px] text-slate-400 mt-2">Ingresos totales brutos obtenidos.</p>
+                <div>
+                    <label class="block text-xs font-bold uppercase text-slate-500 dark:text-slate-400 tracking-wider mb-2">Fecha *</label>
+                    <input type="date" id="gastoPersonalFecha" required class="block w-full rounded-xl border-slate-200 dark:border-slate-700 dark:bg-slate-800 dark:text-white py-2.5 px-4 text-xs font-semibold focus:ring-2 focus:ring-teal-500 border shadow-sm">
                 </div>
-                <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex flex-col justify-between">
-                    <div>
-                        <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Costos Iniciales</span>
-                        <h2 class="text-xl sm:text-2xl font-extrabold text-slate-800 mt-1" id="plCostosIniciales">$0</h2>
-                    </div>
-                    <p class="text-[10px] text-slate-400 mt-2">Inversión inicial en establecimiento.</p>
+                <div>
+                    <label class="block text-xs font-bold uppercase text-slate-500 dark:text-slate-400 tracking-wider mb-2">Categoría *</label>
+                    <select id="gastoPersonalCategoria" required class="block w-full rounded-xl border-slate-200 dark:border-slate-700 dark:bg-slate-800 dark:text-white py-2.5 px-4 text-xs font-semibold focus:ring-2 focus:ring-teal-500 border shadow-sm cursor-pointer">
+                        <option value="Hogar/Mercado">Hogar / Mercado</option>
+                        <option value="Salud/Medicina">Salud / Medicina</option>
+                        <option value="Servicios Públicos">Servicios Públicos</option>
+                        <option value="Educación">Educación</option>
+                        <option value="Transporte/Vehículo">Transporte / Vehículo</option>
+                        <option value="Entretenimiento">Entretenimiento</option>
+                        <option value="Mantenimiento Hogar">Mantenimiento Hogar</option>
+                        <option value="Imprevistos">Imprevistos</option>
+                        <option value="Varios">Varios</option>
+                    </select>
                 </div>
-                <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex flex-col justify-between">
-                    <div>
-                        <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Gastos de Desarrollo</span>
-                        <h2 class="text-xl sm:text-2xl font-extrabold text-slate-800 mt-1" id="plCostosDesarrollo">$0</h2>
+                <div>
+                    <label class="block text-xs font-bold uppercase text-slate-500 dark:text-slate-400 tracking-wider mb-2">Monto (COP) *</label>
+                    <div class="relative rounded-xl shadow-sm">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"><span class="text-slate-400 text-xs font-bold">$</span></div>
+                        <input type="number" step="any" id="gastoPersonalMonto" required placeholder="0" min="0" class="block w-full rounded-xl border-slate-200 dark:border-slate-700 dark:bg-slate-800 dark:text-white py-2.5 pl-8 pr-4 text-xs font-bold focus:ring-2 focus:ring-teal-500 border shadow-sm">
                     </div>
-                    <p class="text-[10px] text-slate-400 mt-2">Costos operacionales y labores.</p>
                 </div>
-                <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex flex-col justify-between">
-                    <div>
-                        <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Utilidad Neta General</span>
-                        <h2 class="text-xl sm:text-2xl font-extrabold text-sky-600 mt-1" id="plUtilidad">$0</h2>
-                    </div>
-                    <p class="text-[10px] text-slate-400 mt-2">Rentabilidad neta global consolidada.</p>
+                <div>
+                    <label class="block text-xs font-bold uppercase text-slate-500 dark:text-slate-400 tracking-wider mb-2">Método de Pago *</label>
+                    <select id="gastoPersonalMetodo" class="block w-full rounded-xl border-slate-200 dark:border-slate-700 dark:bg-slate-800 dark:text-white py-2.5 px-4 text-xs font-semibold focus:ring-2 focus:ring-teal-500 border shadow-sm cursor-pointer">
+                        <option value="Efectivo">Efectivo</option>
+                        <option value="Transferencia">Transferencia</option>
+                        <option value="Tarjeta">Tarjeta</option>
+                    </select>
                 </div>
             </div>
 
-            <!-- Sección: Análisis de Variación de Precios -->
-            <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
-                <div class="p-6 border-b border-slate-100 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-slate-50/50">
-                    <div>
-                        <h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
-                            <span class="p-1.5 bg-sky-100 text-sky-800 rounded-lg">
-                                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
-                                </svg>
-                            </span>
-                            Análisis Cronológico y Variación de Precios por Ítem
-                        </h3>
-                        <p class="text-xs text-slate-400 mt-1">Selecciona un cultivo, insumo o producto para analizar la variación de sus precios de compra o venta a lo largo del tiempo.</p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div>
+                    <label class="block text-xs font-bold uppercase text-slate-500 dark:text-slate-400 tracking-wider mb-2">Descripción / Detalle *</label>
+                    <input type="text" id="gastoPersonalDescripcion" required placeholder="p.ej. Pago de medicina prepagada, Mercado mensual..." class="block w-full rounded-xl border-slate-200 dark:border-slate-700 dark:bg-slate-800 dark:text-white py-2.5 px-4 text-xs font-semibold focus:ring-2 focus:ring-teal-500 border shadow-sm">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold uppercase text-slate-500 dark:text-slate-400 tracking-wider mb-2">Beneficiario / Tercero / Familiar</label>
+                    <input type="text" id="gastoPersonalBeneficiario" placeholder="p.ej. Sura EPS, Supermercado Éxito, Colegio Veredal..." class="block w-full rounded-xl border-slate-200 dark:border-slate-700 dark:bg-slate-800 dark:text-white py-2.5 px-4 text-xs font-semibold focus:ring-2 focus:ring-teal-500 border shadow-sm">
+                </div>
+            </div>
+
+            <div class="flex justify-end gap-3 pt-2 border-t border-slate-100 dark:border-slate-800">
+                <button type="submit" class="flex items-center gap-2 bg-teal-600 hover:bg-teal-700 text-white px-6 py-2.5 rounded-xl font-bold text-xs shadow-md transition cursor-pointer">
+                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                    </svg>
+                    <span>Guardar Gasto Personal</span>
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- BLOQUE INTEGRADO: INGRESOS EXTERNOS Y METAS DE RECOLECCIÓN CON TIEMPO DEFINIDO -->
+    <div class="border-t-2 border-dashed border-slate-200 dark:border-slate-800 pt-8 space-y-6">
+        <div>
+            <h2 class="text-xl font-extrabold text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
+                <span class="p-1.5 bg-indigo-100 text-indigo-700 rounded-lg">
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </span>
+                Gestión de Ingresos Extras y Metas de Recolección (Sinking Fund)
+            </h2>
+            <p class="text-xs text-slate-400 mt-1">Registra aportes externos a la finca, establece metas de ahorro con plazo fijo y visualiza el ritmo necesario por día/semana para cumplirlas.</p>
+        </div>
+
+        <!-- Formulares Integrados: Ingresos Externos & Crear Meta -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Formulario A: Registrar Ingreso Externo / Extra -->
+            <div class="bg-white dark:bg-slate-900 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 p-6 space-y-4">
+                <div class="border-b border-slate-100 dark:border-slate-800 pb-3">
+                    <h3 class="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                        <span>💰</span> Registrar Ingreso Externo / Extra
+                    </h3>
+                    <p class="text-xs text-slate-400 mt-0.5">Dinero recibido ajeno a las ventas de cultivos de la finca.</p>
+                </div>
+
+                <form id="ingresoExternoForm" onsubmit="handleGuardarIngresoExterno(event)" class="space-y-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold uppercase text-slate-500 dark:text-slate-400 tracking-wider mb-1">Fecha *</label>
+                            <input type="date" id="extIngresoFecha" required class="block w-full rounded-xl border-slate-200 dark:border-slate-700 dark:bg-slate-800 dark:text-white py-2 px-3 text-xs font-semibold focus:ring-2 focus:ring-indigo-500 border shadow-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold uppercase text-slate-500 dark:text-slate-400 tracking-wider mb-1">Fuente / Origen *</label>
+                            <input type="text" id="extIngresoFuente" required placeholder="p.ej. Trabajo externo, Giro, Venta personal..." class="block w-full rounded-xl border-slate-200 dark:border-slate-700 dark:bg-slate-800 dark:text-white py-2 px-3 text-xs font-semibold focus:ring-2 focus:ring-indigo-500 border shadow-sm">
+                        </div>
                     </div>
 
-                    <!-- Selector de Items -->
-                    <div class="w-full md:w-80">
-                        <label for="variationItemSelector" class="sr-only">Seleccionar Ítem</label>
-                        <select id="variationItemSelector" onchange="renderPriceVariationDetail()" class="block w-full rounded-xl border-slate-200 bg-white py-2.5 px-3 text-slate-800 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 text-xs font-bold cursor-pointer border shadow-sm">
-                            <!-- Se poblará dinámicamente con todos los conceptos únicos -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold uppercase text-slate-500 dark:text-slate-400 tracking-wider mb-1">Monto (COP) *</label>
+                            <div class="relative rounded-xl shadow-sm">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"><span class="text-slate-400 text-xs font-bold">$</span></div>
+                                <input type="number" step="any" id="extIngresoMonto" required min="1" placeholder="0" class="block w-full rounded-xl border-slate-200 dark:border-slate-700 dark:bg-slate-800 dark:text-white py-2 pl-8 pr-3 text-xs font-bold focus:ring-2 focus:ring-indigo-500 border shadow-sm">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold uppercase text-slate-500 dark:text-slate-400 tracking-wider mb-1">Método de Pago *</label>
+                            <select id="extIngresoMetodo" class="block w-full rounded-xl border-slate-200 dark:border-slate-700 dark:bg-slate-800 dark:text-white py-2 px-3 text-xs font-semibold focus:ring-2 focus:ring-indigo-500 border shadow-sm cursor-pointer">
+                                <option value="Transferencia">Transferencia Bancaria</option>
+                                <option value="Efectivo">Efectivo</option>
+                                <option value="Nequi/Daviplata">Nequi / Daviplata</option>
+                                <option value="Cheque/Otro">Cheque / Otro</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-slate-500 dark:text-slate-400 tracking-wider mb-1">Notas / Observaciones</label>
+                        <input type="text" id="extIngresoNotas" placeholder="Notas opcionales..." class="block w-full rounded-xl border-slate-200 dark:border-slate-700 dark:bg-slate-800 dark:text-white py-2 px-3 text-xs font-semibold focus:ring-2 focus:ring-indigo-500 border shadow-sm">
+                    </div>
+
+                    <div class="flex justify-end pt-1">
+                        <button type="submit" class="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2 rounded-xl font-bold text-xs shadow-sm transition cursor-pointer">
+                            + Registrar Ingreso Extra
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Formulario B: Crear Nueva Meta de Recolección -->
+            <div class="bg-white dark:bg-slate-900 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 p-6 space-y-4">
+                <div class="border-b border-slate-100 dark:border-slate-800 pb-3">
+                    <h3 class="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                        <span>🎯</span> Crear Meta de Recolección / Ahorro
+                    </h3>
+                    <p class="text-xs text-slate-400 mt-0.5">Establece un monto objetivo y fecha límite (Fondo de reserva / Inversión).</p>
+                </div>
+
+                <form id="crearMetaForm" onsubmit="handleCrearMeta(event)" class="space-y-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold uppercase text-slate-500 dark:text-slate-400 tracking-wider mb-1">Nombre de la Meta *</label>
+                            <input type="text" id="extMetaNombre" required placeholder="p.ej. Compra Guadañadora, Abono Préstamo..." class="block w-full rounded-xl border-slate-200 dark:border-slate-700 dark:bg-slate-800 dark:text-white py-2 px-3 text-xs font-semibold focus:ring-2 focus:ring-amber-500 border shadow-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold uppercase text-slate-500 dark:text-slate-400 tracking-wider mb-1">Monto Objetivo (COP) *</label>
+                            <div class="relative rounded-xl shadow-sm">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"><span class="text-slate-400 text-xs font-bold">$</span></div>
+                                <input type="number" step="any" id="extMetaMontoObjetivo" required min="1" placeholder="0" class="block w-full rounded-xl border-slate-200 dark:border-slate-700 dark:bg-slate-800 dark:text-white py-2 pl-8 pr-3 text-xs font-bold focus:ring-2 focus:ring-amber-500 border shadow-sm">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold uppercase text-slate-500 dark:text-slate-400 tracking-wider mb-1">Fecha Límite *</label>
+                            <input type="date" id="extMetaFechaLimite" required class="block w-full rounded-xl border-slate-200 dark:border-slate-700 dark:bg-slate-800 dark:text-white py-2 px-3 text-xs font-semibold focus:ring-2 focus:ring-amber-500 border shadow-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold uppercase text-slate-500 dark:text-slate-400 tracking-wider mb-1">Categoría *</label>
+                            <select id="extMetaCategoria" class="block w-full rounded-xl border-slate-200 dark:border-slate-700 dark:bg-slate-800 dark:text-white py-2 px-3 text-xs font-semibold focus:ring-2 focus:ring-amber-500 border shadow-sm cursor-pointer">
+                                <option value="Maquinaria/Equipos">Maquinaria / Equipos</option>
+                                <option value="Infraestructura">Infraestructura Finca</option>
+                                <option value="Abono a Deuda">Abono a Préstamos/Deuda</option>
+                                <option value="Reserva Emergencias">Fondo de Emergencia</option>
+                                <option value="Insumos Cosecha">Insumos Gran Cosecha</option>
+                                <option value="Otros">Otros Objetivos</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold uppercase text-slate-500 dark:text-slate-400 tracking-wider mb-1">Notas / Detalle</label>
+                            <input type="text" id="extMetaNotas" placeholder="Notas opcionales..." class="block w-full rounded-xl border-slate-200 dark:border-slate-700 dark:bg-slate-800 dark:text-white py-2 px-3 text-xs font-semibold focus:ring-2 focus:ring-amber-500 border shadow-sm">
+                        </div>
+                    </div>
+
+                    <div class="flex justify-end pt-1">
+                        <button type="submit" class="w-full sm:w-auto bg-amber-600 hover:bg-amber-700 text-white px-5 py-2 rounded-xl font-bold text-xs shadow-sm transition cursor-pointer">
+                            + Crear Meta
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Formulario C: Aportar a Meta Existente -->
+        <div class="bg-white dark:bg-slate-900 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 p-6 space-y-4">
+            <div class="border-b border-slate-100 dark:border-slate-800 pb-3">
+                <h3 class="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                    <span>📥</span> Registrar Aporte a Meta Activa
+                </h3>
+                <p class="text-xs text-slate-400 mt-0.5">Canaliza fondos (de ingresos externos o caja general) hacia un objetivo activo.</p>
+            </div>
+
+            <form id="aporteMetaForm" onsubmit="handleGuardarAporteMeta(event)" class="space-y-4">
+                <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-slate-500 dark:text-slate-400 tracking-wider mb-1">Seleccionar Meta *</label>
+                        <select id="extAporteMetaSelect" required class="block w-full rounded-xl border-slate-200 dark:border-slate-700 dark:bg-slate-800 dark:text-white py-2 px-3 text-xs font-semibold focus:ring-2 focus:ring-emerald-500 border shadow-sm cursor-pointer">
+                            <!-- Se llena dinámicamente -->
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-slate-500 dark:text-slate-400 tracking-wider mb-1">Fecha Aporte *</label>
+                        <input type="date" id="extAporteFecha" required class="block w-full rounded-xl border-slate-200 dark:border-slate-700 dark:bg-slate-800 dark:text-white py-2 px-3 text-xs font-semibold focus:ring-2 focus:ring-emerald-500 border shadow-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-slate-500 dark:text-slate-400 tracking-wider mb-1">Monto (COP) *</label>
+                        <div class="relative rounded-xl shadow-sm">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"><span class="text-slate-400 text-xs font-bold">$</span></div>
+                            <input type="number" step="any" id="extAporteMonto" required min="1" placeholder="0" class="block w-full rounded-xl border-slate-200 dark:border-slate-700 dark:bg-slate-800 dark:text-white py-2 pl-8 pr-3 text-xs font-bold focus:ring-2 focus:ring-emerald-500 border shadow-sm">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-slate-500 dark:text-slate-400 tracking-wider mb-1">Origen de Fondos</label>
+                        <select id="extAporteOrigen" class="block w-full rounded-xl border-slate-200 dark:border-slate-700 dark:bg-slate-800 dark:text-white py-2 px-3 text-xs font-semibold focus:ring-2 focus:ring-emerald-500 border shadow-sm cursor-pointer">
+                            <option value="Ingreso Externo">Ingreso Externo / Extra</option>
+                            <option value="Caja Real Finca">Caja Real Finca</option>
+                            <option value="Ahorro Personal">Ahorro Personal</option>
+                            <option value="Otro">Otro Origen</option>
                         </select>
                     </div>
                 </div>
 
-                <div class="p-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    <!-- Metrics Card -->
-                    <div class="lg:col-span-1 space-y-4">
-                        <div class="bg-slate-50 border border-slate-100 rounded-2xl p-5 space-y-4">
-                            <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400">Indicadores de Variación</h4>
-                            
-                            <div class="grid grid-cols-2 gap-4">
-                                <div class="bg-white rounded-xl p-3 border border-slate-100 shadow-sm text-center">
-                                    <span class="text-[10px] text-slate-400 font-bold block uppercase">Mínimo</span>
-                                    <span class="text-sm font-extrabold text-slate-800 block mt-1" id="varMin">$0</span>
-                                </div>
-                                <div class="bg-white rounded-xl p-3 border border-slate-100 shadow-sm text-center">
-                                    <span class="text-[10px] text-slate-400 font-bold block uppercase">Máximo</span>
-                                    <span class="text-sm font-extrabold text-slate-800 block mt-1" id="varMax">$0</span>
-                                </div>
-                            </div>
-                            <div class="bg-white rounded-xl p-4 border border-slate-100 shadow-sm text-center">
-                                <span class="text-[10px] text-slate-400 font-bold block uppercase">Promedio General</span>
-                                <span class="text-base font-black text-slate-800 block mt-1" id="varAverage">$0</span>
-                            </div>
-                            <div class="bg-white rounded-xl p-4 border border-slate-100 shadow-sm text-center flex flex-col justify-center items-center">
-                                <span class="text-[10px] text-slate-400 font-bold block uppercase">Variación Porcentual</span>
-                                <span class="text-lg font-black block mt-1 text-slate-900" id="varPct">0%</span>
-                                <span id="varTrendBadge" class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold mt-2 bg-slate-100 text-slate-800">Estable</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Chronological Table List -->
-                    <div class="lg:col-span-2">
-                        <div class="border border-slate-100 rounded-2xl overflow-hidden">
-                            <div class="overflow-y-auto max-h-[300px]">
-                                <table class="min-w-full divide-y divide-slate-100 text-sm">
-                                    <thead class="bg-slate-50 sticky top-0">
-                                        <tr>
-                                            <th scope="col" class="px-4 py-3 text-left text-xs font-bold text-slate-400 uppercase tracking-wider">Fecha</th>
-                                            <th scope="col" class="px-4 py-3 text-left text-xs font-bold text-slate-400 uppercase tracking-wider">Lote</th>
-                                            <th scope="col" class="px-4 py-3 text-right text-xs font-bold text-slate-400 uppercase tracking-wider">Precio / Costo (COP)</th>
-                                            <th scope="col" class="px-4 py-3 text-left text-xs font-bold text-slate-400 uppercase tracking-wider font-mono">Código Seguimiento</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody class="divide-y divide-slate-100 bg-white" id="varHistoryTableBody">
-                                        <!-- Se poblará dinámicamente con JS -->
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
+                <div class="flex justify-end pt-1">
+                    <button type="submit" class="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2 rounded-xl font-bold text-xs shadow-sm transition cursor-pointer">
+                        + Registrar Aporte
+                    </button>
                 </div>
+            </form>
+        </div>
+
+        <!-- Tarjetas de Metas Activas y Ritmo Calculado -->
+        <div class="space-y-4">
+            <h3 class="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                <span>📊</span> Metas de Ahorro con Avance y Ritmo Necesario
+            </h3>
+            <div id="metasCardsContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Se llena dinámicamente -->
             </div>
         </div>
 
+        <!-- Tablas Históricas: Ingresos Externos & Aportes -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Historial Ingresos Externos -->
+            <div class="bg-white dark:bg-slate-900 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 overflow-hidden space-y-3 p-5">
+                <div class="border-b border-slate-100 dark:border-slate-800 pb-3 flex justify-between items-center">
+                    <h3 class="text-xs font-bold text-slate-900 dark:text-white">Historial de Ingresos Extras</h3>
+                    <span class="text-[10px] text-indigo-600 font-bold bg-indigo-50 dark:bg-indigo-950 px-2 py-0.5 rounded-full" id="extIngresosCount">0 registros</span>
+                </div>
+                <div class="overflow-x-auto w-full max-h-[250px]">
+                    <table class="min-w-full divide-y divide-slate-100 text-xs">
+                        <thead class="bg-slate-50 dark:bg-slate-800 sticky top-0">
+                            <tr>
+                                <th class="px-3 py-2 text-left font-bold text-slate-400">Fecha</th>
+                                <th class="px-3 py-2 text-left font-bold text-slate-400">Fuente</th>
+                                <th class="px-3 py-2 text-right font-bold text-slate-400">Monto (COP)</th>
+                                <th class="px-3 py-2 text-center font-bold text-slate-400">Método</th>
+                                <th class="px-3 py-2 text-center font-bold text-slate-400">Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100 dark:divide-slate-800" id="extIngresosTableBody">
+                            <!-- Se llena dinámicamente -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
 
+            <!-- Historial Aportes -->
+            <div class="bg-white dark:bg-slate-900 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 overflow-hidden space-y-3 p-5">
+                <div class="border-b border-slate-100 dark:border-slate-800 pb-3 flex justify-between items-center">
+                    <h3 class="text-xs font-bold text-slate-900 dark:text-white">Historial de Aportes a Metas</h3>
+                    <span class="text-[10px] text-emerald-600 font-bold bg-emerald-50 dark:bg-emerald-950 px-2 py-0.5 rounded-full" id="extAportesCount">0 aportes</span>
+                </div>
+                <div class="overflow-x-auto w-full max-h-[250px]">
+                    <table class="min-w-full divide-y divide-slate-100 text-xs">
+                        <thead class="bg-slate-50 dark:bg-slate-800 sticky top-0">
+                            <tr>
+                                <th class="px-3 py-2 text-left font-bold text-slate-400">Fecha</th>
+                                <th class="px-3 py-2 text-left font-bold text-slate-400">Meta</th>
+                                <th class="px-3 py-2 text-right font-bold text-slate-400">Aporte (COP)</th>
+                                <th class="px-3 py-2 text-left font-bold text-slate-400">Origen</th>
+                                <th class="px-3 py-2 text-center font-bold text-slate-400">Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100 dark:divide-slate-800" id="extAportesTableBody">
+                            <!-- Se llena dinámicamente -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
 
- 
+    <!-- C. Gráficos de Consumo del Hogar -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="bg-white dark:bg-slate-900 rounded-3xl p-5 shadow-sm border border-slate-100 dark:border-slate-800 flex flex-col h-[380px]">
+            <div class="mb-4">
+                <h3 class="text-base font-bold text-slate-900 dark:text-white">Distribución de Gastos del Hogar</h3>
+                <p class="text-xs text-slate-400 mt-0.5">Porcentaje del presupuesto destinado por categoría de consumo.</p>
+            </div>
+            <div class="relative flex-grow min-h-0 w-full flex justify-center items-center">
+                <canvas id="personalDoughnutChart"></canvas>
+            </div>
+        </div>
+
+        <div class="bg-white dark:bg-slate-900 rounded-3xl p-5 shadow-sm border border-slate-100 dark:border-slate-800 flex flex-col h-[380px]">
+            <div class="mb-4">
+                <h3 class="text-base font-bold text-slate-900 dark:text-white">Tendencia Mensual: Finca vs. Hogar</h3>
+                <p class="text-xs text-slate-400 mt-0.5">Evolución comparativa entre aportes de la finca y gastos del hogar.</p>
+            </div>
+            <div class="relative flex-grow min-h-0 w-full">
+                <canvas id="personalTrendChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- D. Tabla de Registros Personales -->
+    <div class="bg-white dark:bg-slate-900 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 overflow-hidden space-y-4 p-6">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-slate-100 dark:border-slate-800 pb-4">
+            <div>
+                <h3 class="text-base font-bold text-slate-900 dark:text-white">Historial de Gastos Personales y del Hogar</h3>
+                <p class="text-xs text-slate-400 mt-0.5">Listado detallado de egresos no agrícolas registrados.</p>
+            </div>
+            <div class="flex items-center gap-3">
+                <select id="filterCategoriaPersonal" onchange="renderCajaGeneralModule()" class="rounded-xl border-slate-200 dark:border-slate-700 dark:bg-slate-800 dark:text-white py-1.5 px-3 text-xs font-bold focus:ring-2 focus:ring-teal-500">
+                    <option value="Todos">Todas las Categorías</option>
+                    <option value="Hogar/Mercado">Hogar / Mercado</option>
+                    <option value="Salud/Medicina">Salud / Medicina</option>
+                    <option value="Servicios Públicos">Servicios Públicos</option>
+                    <option value="Educación">Educación</option>
+                    <option value="Transporte/Vehículo">Transporte / Vehículo</option>
+                    <option value="Entretenimiento">Entretenimiento</option>
+                    <option value="Mantenimiento Hogar">Mantenimiento Hogar</option>
+                    <option value="Imprevistos">Imprevistos</option>
+                    <option value="Varios">Varios</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="overflow-x-auto w-full">
+            <table class="min-w-full divide-y divide-slate-100 text-sm">
+                <thead class="bg-slate-50 dark:bg-slate-800">
+                    <tr>
+                        <th scope="col" class="px-6 py-3.5 text-left text-xs font-bold text-slate-400 uppercase">Fecha</th>
+                        <th scope="col" class="px-6 py-3.5 text-left text-xs font-bold text-slate-400 uppercase">Categoría</th>
+                        <th scope="col" class="px-6 py-3.5 text-left text-xs font-bold text-slate-400 uppercase">Descripción / Detalle</th>
+                        <th scope="col" class="px-6 py-3.5 text-right text-xs font-bold text-slate-400 uppercase">Monto (COP)</th>
+                        <th scope="col" class="px-6 py-3.5 text-center text-xs font-bold text-slate-400 uppercase">Método</th>
+                        <th scope="col" class="px-6 py-3.5 text-left text-xs font-bold text-slate-400 uppercase">Beneficiario / Tercero</th>
+                        <th scope="col" class="px-6 py-3.5 text-center text-xs font-bold text-slate-400 uppercase">Acción</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 dark:divide-slate-800 bg-white dark:bg-slate-900" id="gastosPersonalesTableBody">
+                    <!-- Se llena dinámicamente -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
