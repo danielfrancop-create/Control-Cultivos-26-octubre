@@ -101,5 +101,3 @@ function obtenerConteoItems(filtros) {
     };
   }
 }
-
- 
