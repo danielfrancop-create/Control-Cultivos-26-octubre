@@ -403,6 +403,12 @@
                 </div>
                 <!-- Botones de Acción Global -->
                 <div class="flex flex-wrap gap-2 w-full sm:w-auto">
+                    <button onclick="exportInformeGeneralPDF()" class="flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-3 sm:py-2.5 rounded-xl font-bold text-base sm:text-xs transition shadow-sm cursor-pointer border border-indigo-500/20 w-full sm:w-auto min-h-[48px] sm:min-h-0">
+                        <svg class="h-5 w-5 sm:h-4 sm:w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                        Generar Informe General (PDF)
+                    </button>
                     <button onclick="exportDashboardToPDF()" class="flex items-center justify-center gap-2 bg-rose-600 hover:bg-rose-700 text-white px-4 py-3 sm:py-2.5 rounded-xl font-bold text-base sm:text-xs transition shadow-sm cursor-pointer border border-rose-500/20 w-full sm:w-auto min-h-[48px] sm:min-h-0">
                         <svg class="h-5 w-5 sm:h-4 sm:w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
@@ -7753,6 +7759,374 @@
 
             // Save the document
             const filename = `Transacciones_Finca_Los_Sauces_${new Date().toISOString().split('T')[0]}.pdf`;
+            doc.save(filename);
+        }
+
+        function exportInformeGeneralPDF() {
+            if (!window.jspdf || !window.jspdf.jsPDF) {
+                alert("La librería PDF aún no se ha cargado. Por favor intenta de nuevo en unos segundos.");
+                return;
+            }
+
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF('l', 'pt', 'a4'); // Landscape A4 (width: 842pt, height: 595pt)
+            const todayStr = new Date().toLocaleDateString('es-CO', { year: 'numeric', month: 'long', day: 'numeric' });
+
+            // 1. Header Banner
+            doc.setFillColor(6, 78, 59); // Emerald 900
+            doc.rect(40, 35, 762, 55, 'F');
+
+            doc.setTextColor(255, 255, 255);
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(18);
+            doc.text("FINCA LOS SAUCES", 55, 58);
+
+            doc.setFontSize(10);
+            doc.setFont('helvetica', 'normal');
+            doc.text("INFORME GENERAL EJECUTIVO, PROYECCIÓN DE COSECHA Y OBLIGACIONES", 55, 76);
+
+            doc.setFontSize(9);
+            doc.text(`Fecha de Emisión: ${todayStr}`, 785, 68, { align: 'right' });
+
+            let currentY = 105;
+
+            if (!rawData) rawData = {};
+
+            // Determine active lots
+            const activeLotsMap = {};
+
+            // Check cycles sheet for active cycles
+            if (rawData.ciclos && rawData.ciclos.length > 0) {
+                (rawData.ciclos || []).forEach(c => {
+                    const status = String(c.Estado || c.estado || '').toUpperCase();
+                    if (status === 'EN PROCESO' || status === 'ACTIVO') {
+                        const loteName = String(c.Lote || c.lote || c.Lote_Principal || c.lote_principal || '').trim();
+                        if (loteName) {
+                            activeLotsMap[loteName] = c.Cultivo || c.cultivo || "Cultivo Activo";
+                        }
+                    }
+                });
+            }
+
+            // Fallback to lots present in gastosIniciales if no active cycles recorded
+            if (Object.keys(activeLotsMap).length === 0 && rawData.gastosIniciales) {
+                (rawData.gastosIniciales || []).forEach(ini => {
+                    const loteName = String(ini.Lote || ini.lote || '').trim();
+                    if (loteName && !activeLotsMap[loteName]) {
+                        activeLotsMap[loteName] = ini.Cultivo_Semilla || ini.cultivo_semilla || "Cultivo Establecido";
+                    }
+                });
+            }
+
+            // Fallback default to Lote 1, Lote 2, etc. if completely empty
+            if (Object.keys(activeLotsMap).length === 0) {
+                activeLotsMap["Lote 1"] = "Cebolla Larga";
+                activeLotsMap["Lote 2"] = "Aguacate Hass";
+            }
+
+            const activeLotNames = Object.keys(activeLotsMap).sort();
+
+            // -------------------------------------------------------------
+            // SECCIÓN 1: LOTES ACTIVOS Y PROYECCIÓN DE COSECHA
+            // -------------------------------------------------------------
+            doc.setFillColor(15, 23, 42); // Slate 900
+            doc.rect(40, currentY, 762, 22, 'F');
+            doc.setTextColor(255, 255, 255);
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(11);
+            doc.text("1. LOTES ACTIVOS Y PROYECCIÓN DE COSECHA (FACTOR 2.8X Y MARGEN NETO 35%)", 50, currentY + 15);
+
+            currentY += 30;
+
+            const sec1Rows = [];
+            let totalInversionSemillasGlobal = 0;
+            let totalCantidadSemillasGlobal = 0;
+            let totalGastosOperativosGlobal = 0;
+            let totalCostoAcumuladoGlobal = 0;
+            let totalVentaEstimadaGlobal = 0;
+
+            activeLotNames.forEach(loteName => {
+                const cultivoName = activeLotsMap[loteName];
+
+                // Calculate seed investment (gastosIniciales)
+                const iniRecords = (rawData.gastosIniciales || []).filter(x => String(x.Lote || x.lote || '').trim() === loteName);
+                const valorSemillas = iniRecords.reduce((sum, x) => sum + (Number(x.Costo_Total_COP || x.costo_total_cop) || 0), 0);
+                const cantidadSemillas = iniRecords.reduce((sum, x) => sum + (Number(x.Cantidad || x.cantidad) || 0), 0);
+                const unidadSemillas = iniRecords.length > 0 ? (iniRecords[0].Unidad_Medida || iniRecords[0].unidad_medida || 'Unidades') : 'Unidades';
+
+                // Calculate operational expenses & inputs (gastosDesarrollo)
+                const desRecords = (rawData.gastosDesarrollo || []).filter(x => String(x.Lote || x.lote || '').trim() === loteName);
+                const valorOperativosInsumos = desRecords.reduce((sum, x) => sum + (Number(x.Costo_Total_COP || x.costo_total_cop) || 0), 0);
+
+                // Total Accumulated Cost
+                const costoTotalAcumulado = valorSemillas + valorOperativosInsumos;
+
+                // Projection calculations:
+                // Cosecha Proyectada: Factor 2.8x on seed quantity/investment
+                const cantidadProyectada = cantidadSemillas * 2.8;
+                const valorCosechaProyectada28x = valorSemillas * 2.8;
+
+                // Valor de Venta Estimado for 35% net profit margin free of all accrued costs:
+                // Formula: Venta Estimada = Costo Total del Lote / (1 - 0.35) = Costo Total / 0.65
+                const valorVentaEstimada35pct = costoTotalAcumulado > 0 ? (costoTotalAcumulado / 0.65) : 0;
+
+                totalInversionSemillasGlobal += valorSemillas;
+                totalCantidadSemillasGlobal += cantidadSemillas;
+                totalGastosOperativosGlobal += valorOperativosInsumos;
+                totalCostoAcumuladoGlobal += costoTotalAcumulado;
+                totalVentaEstimadaGlobal += valorVentaEstimada35pct;
+
+                sec1Rows.push({
+                    lote: loteName,
+                    cultivo: cultivoName,
+                    semillaInversion: formatCOP(valorSemillas),
+                    semillaCantidad: `${cantidadSemillas.toLocaleString('es-CO')} ${unidadSemillas}`,
+                    operativosInsumos: formatCOP(valorOperativosInsumos),
+                    costoTotal: formatCOP(costoTotalAcumulado),
+                    cosechaProyectada28x: `${cantidadProyectada.toLocaleString('es-CO')} ${unidadSemillas} (${formatCOP(valorCosechaProyectada28x)})`,
+                    ventaEstimada35pct: formatCOP(valorVentaEstimada35pct)
+                });
+            });
+
+            // AutoTable for Section 1
+            doc.autoTable({
+                columns: [
+                    { header: 'Lote', dataKey: 'lote' },
+                    { header: 'Cultivo / Semilla', dataKey: 'cultivo' },
+                    { header: 'Inversión Semillas', dataKey: 'semillaInversion' },
+                    { header: 'Cantidad Semillas', dataKey: 'semillaCantidad' },
+                    { header: 'Operativos e Insumos', dataKey: 'operativosInsumos' },
+                    { header: 'Costo Total Acumulado', dataKey: 'costoTotal' },
+                    { header: 'Cosecha Proyectada (2.8x)', dataKey: 'cosechaProyectada28x' },
+                    { header: 'Venta Est. (Margen 35%)', dataKey: 'ventaEstimada35pct' }
+                ],
+                body: sec1Rows,
+                startY: currentY,
+                margin: { left: 40, right: 40 },
+                styles: { font: 'helvetica', fontSize: 8, cellPadding: 5, lineColor: [226, 232, 240], lineWidth: 0.5 },
+                headStyles: { fillColor: [5, 150, 105], textColor: [255, 255, 255], fontStyle: 'bold' },
+                alternateRowStyles: { fillColor: [248, 250, 252] },
+                columnStyles: {
+                    lote: { fontStyle: 'bold', halign: 'center' },
+                    semillaInversion: { halign: 'right' },
+                    semillaCantidad: { halign: 'center' },
+                    operativosInsumos: { halign: 'right' },
+                    costoTotal: { halign: 'right', fontStyle: 'bold' },
+                    cosechaProyectada28x: { halign: 'center', textColor: [180, 83, 9] },
+                    ventaEstimada35pct: { halign: 'right', fontStyle: 'bold', textColor: [4, 120, 87] }
+                }
+            });
+
+            currentY = doc.lastAutoTable.finalY + 20;
+
+            // -------------------------------------------------------------
+            // SECCIÓN 2: CONSOLIDADO DE SEMILLAS ACTIVAS
+            // -------------------------------------------------------------
+            if (currentY + 100 > 540) { doc.addPage('a4', 'l'); currentY = 40; }
+
+            doc.setFillColor(30, 58, 138); // Blue 900
+            doc.rect(40, currentY, 762, 22, 'F');
+            doc.setTextColor(255, 255, 255);
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(11);
+            doc.text("2. CONSOLIDADO EJECUTIVO DE SEMILLAS ACTIVAS EN CAMPO", 50, currentY + 15);
+
+            currentY += 30;
+
+            doc.autoTable({
+                columns: [
+                    { header: 'Métrica Ejecutiva de Semillas Activas', dataKey: 'metric' },
+                    { header: 'Valor Acumulado a Nivel Finca', dataKey: 'val' }
+                ],
+                body: [
+                    { metric: 'Cantidad Total de Semillas Activas Sembradas', val: `${totalCantidadSemillasGlobal.toLocaleString('es-CO')} Unidades/Atados` },
+                    { metric: 'Valor Financiero Total Invertido en Semillas Activas', val: formatCOP(totalInversionSemillasGlobal) },
+                    { metric: 'Costo Total Operacional Acumulado (Semillas + Insumos + Labor)', val: formatCOP(totalCostoAcumuladoGlobal) },
+                    { metric: 'Valor Total de Venta Proyectado (Obteniendo Margen Neto 35%)', val: formatCOP(totalVentaEstimadaGlobal) }
+                ],
+                startY: currentY,
+                margin: { left: 40, right: 40 },
+                styles: { font: 'helvetica', fontSize: 9, cellPadding: 6, lineColor: [226, 232, 240], lineWidth: 0.5 },
+                headStyles: { fillColor: [37, 99, 235], textColor: [255, 255, 255], fontStyle: 'bold' },
+                columnStyles: {
+                    metric: { fontStyle: 'bold' },
+                    val: { halign: 'right', fontStyle: 'bold', textColor: [30, 58, 138] }
+                }
+            });
+
+            currentY = doc.lastAutoTable.finalY + 25;
+
+            // -------------------------------------------------------------
+            // SECCIÓN 3: OBLIGACIONES FINANCIERAS (CUENTAS POR PAGAR)
+            // -------------------------------------------------------------
+            if (currentY + 120 > 540) { doc.addPage('a4', 'l'); currentY = 40; }
+
+            doc.setFillColor(153, 27, 27); // Rose/Red 800
+            doc.rect(40, currentY, 762, 22, 'F');
+            doc.setTextColor(255, 255, 255);
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(11);
+            doc.text("3. OBLIGACIONES FINANCIERAS, DEUDAS Y CUENTAS POR PAGAR", 50, currentY + 15);
+
+            currentY += 30;
+
+            // Gather Accounts Payable to Suppliers & Labor
+            const pendingPayables = [];
+            let totalProveedoresPendiente = 0;
+
+            const filterPending = (arr, tipoNombre) => {
+                (arr || []).forEach(x => {
+                    const est = String(x.Estado_Pago || x.estado_pago || '').toUpperCase();
+                    if (est === 'PENDIENTE') {
+                        const monto = Number(x.Costo_Total_COP || x.costo_total_cop) || 0;
+                        const acreedor = x.Cliente_Deudor_Proveedor || x.cliente_deudor_proveedor || x.Proveedor || x.proveedor || x.Comprador || x.comprador || 'Proveedor/Jornalero';
+                        const concepto = x.Cultivo_Semilla || x.Tipo_Insumo || x.Producto_Vendido || x.Detalle || x.Notas || tipoNombre;
+                        const fechaLim = x.Fecha_Vencimiento || x.fecha_vencimiento || x.Fecha || x.fecha || '-';
+
+                        totalProveedoresPendiente += monto;
+                        pendingPayables.push({
+                            tipo: tipoNombre,
+                            concepto: concepto,
+                            acreedor: acreedor,
+                            monto: formatCOP(monto),
+                            fechaLimite: fechaLim
+                        });
+                    }
+                });
+            };
+
+            filterPending(rawData.gastosIniciales, "Gasto Inicial / Semilla");
+            filterPending(rawData.gastosDesarrollo, "Gasto Desarrollo / Insumo");
+
+            // Render Table A: Cuentas por Pagar Proveedores
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(9);
+            doc.setTextColor(153, 27, 27);
+            doc.text("A. Cuentas por Pagar a Proveedores, Contratistas y Jornales", 40, currentY);
+            currentY += 10;
+
+            if (pendingPayables.length === 0) {
+                doc.setFont('helvetica', 'italic');
+                doc.setFontSize(8);
+                doc.setTextColor(100, 116, 139);
+                doc.text("No se registran cuentas por pagar pendientes con proveedores o trabajadores.", 40, currentY + 12);
+                currentY += 25;
+            } else {
+                doc.autoTable({
+                    columns: [
+                        { header: 'Tipo Registro', dataKey: 'tipo' },
+                        { header: 'Concepto / Ítem', dataKey: 'concepto' },
+                        { header: 'Acreedor / Proveedor', dataKey: 'acreedor' },
+                        { header: 'Valor Pendiente (COP)', dataKey: 'monto' },
+                        { header: 'Fecha Límite Pago', dataKey: 'fechaLimite' }
+                    ],
+                    body: pendingPayables,
+                    startY: currentY,
+                    margin: { left: 40, right: 40 },
+                    styles: { font: 'helvetica', fontSize: 8, cellPadding: 5, lineColor: [226, 232, 240], lineWidth: 0.5 },
+                    headStyles: { fillColor: [185, 28, 28], textColor: [255, 255, 255], fontStyle: 'bold' },
+                    columnStyles: {
+                        monto: { halign: 'right', fontStyle: 'bold', textColor: [185, 28, 28] },
+                        fechaLimite: { halign: 'center' }
+                    }
+                });
+                currentY = doc.lastAutoTable.finalY + 15;
+            }
+
+            // Render Table B: Bancos y Préstamos
+            if (currentY + 100 > 540) { doc.addPage('a4', 'l'); currentY = 40; }
+
+            const loansRows = [];
+            let totalPrestamosSaldo = 0;
+
+            (rawData.prestamos || []).forEach(p => {
+                const entidad = p.Entidad_Banco || p.entidad_banco || p.Banco || p.banco || 'Banco / Entidad';
+                const tipo = p.Tipo_Prestamo || p.tipo_prestamo || p.Tipo || p.tipo || 'Crédito Fomento';
+                const saldo = Number(p.Saldo_Por_Pagar || p.saldo_por_pagar || p.Saldo || p.saldo) || 0;
+                const cuota = Number(p.Pago_Cuotas || p.pago_cuotas || p.Cuota || p.cuota) || 0;
+                const notas = p.Notas || p.notas || 'Condiciones vigentes';
+
+                totalPrestamosSaldo += saldo;
+                loansRows.push({
+                    entidad: entidad,
+                    tipo: tipo,
+                    saldo: formatCOP(saldo),
+                    cuota: cuota > 0 ? formatCOP(cuota) : '-',
+                    condiciones: notas
+                });
+            });
+
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(9);
+            doc.setTextColor(109, 40, 217); // Purple/Violet
+            doc.text("B. Bancos, Entidades Financieras y Préstamos de Fomento", 40, currentY);
+            currentY += 10;
+
+            if (loansRows.length === 0) {
+                doc.setFont('helvetica', 'italic');
+                doc.setFontSize(8);
+                doc.setTextColor(100, 116, 139);
+                doc.text("No se registran créditos ni deudas bancarias activas.", 40, currentY + 12);
+                currentY += 25;
+            } else {
+                doc.autoTable({
+                    columns: [
+                        { header: 'Entidad / Banco', dataKey: 'entidad' },
+                        { header: 'Línea de Crédito / Tipo', dataKey: 'tipo' },
+                        { header: 'Saldo Pendiente (COP)', dataKey: 'saldo' },
+                        { header: 'Cuota Regular', dataKey: 'cuota' },
+                        { header: 'Próxima Fecha / Condiciones', dataKey: 'condiciones' }
+                    ],
+                    body: loansRows,
+                    startY: currentY,
+                    margin: { left: 40, right: 40 },
+                    styles: { font: 'helvetica', fontSize: 8, cellPadding: 5, lineColor: [226, 232, 240], lineWidth: 0.5 },
+                    headStyles: { fillColor: [124, 58, 237], textColor: [255, 255, 255], fontStyle: 'bold' },
+                    columnStyles: {
+                        saldo: { halign: 'right', fontStyle: 'bold', textColor: [124, 58, 237] },
+                        cuota: { halign: 'right' }
+                    }
+                });
+                currentY = doc.lastAutoTable.finalY + 15;
+            }
+
+            // Total Pasivos Box Summary
+            if (currentY + 50 > 540) { doc.addPage('a4', 'l'); currentY = 40; }
+
+            const totalPasivosGeneral = totalProveedoresPendiente + totalPrestamosSaldo;
+
+            doc.setFillColor(254, 242, 242); // Rose 50
+            doc.setDrawColor(252, 165, 165); // Rose 300
+            doc.rect(40, currentY, 762, 35, 'FD');
+
+            doc.setTextColor(153, 27, 27);
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(10);
+            doc.text("TOTAL GENERAL DE PASIVOS Y COMPROMISOS PENDIENTES DE PAGO:", 55, currentY + 22);
+
+            doc.setFontSize(12);
+            doc.text(formatCOP(totalPasivosGeneral), 785, currentY + 22, { align: 'right' });
+
+            // -------------------------------------------------------------
+            // PAGINACIÓN "Página X de Y" & FOOTER CORPORATIVO
+            // -------------------------------------------------------------
+            const pageCount = doc.internal.getNumberOfPages();
+            for (let i = 1; i <= pageCount; i++) {
+                doc.setPage(i);
+                doc.setFontSize(8);
+                doc.setFont('helvetica', 'normal');
+                doc.setTextColor(100, 116, 139);
+
+                // Footer Line
+                doc.setDrawColor(226, 232, 240);
+                doc.setLineWidth(0.5);
+                doc.line(40, 565, 802, 565);
+
+                doc.text("Finca Los Sauces • Sistema de Control Operativo, Técnico y Financiero", 40, 580);
+                doc.text(`Página ${i} de ${pageCount}`, 802, 580, { align: 'right' });
+            }
+
+            const filename = `Informe_General_Finca_Los_Sauces_${new Date().toISOString().split('T')[0]}.pdf`;
             doc.save(filename);
         }
 
