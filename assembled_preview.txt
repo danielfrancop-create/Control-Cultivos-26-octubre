@@ -202,7 +202,6 @@
     </style>
 
 
-
 </head>
 <body class="h-full flex flex-col text-slate-800">
 
@@ -403,7 +402,7 @@
                 </div>
                 <!-- Botones de Acción Global -->
                 <div class="flex flex-wrap gap-2 w-full sm:w-auto">
-                    <button onclick="exportInformeGeneralPDF()" class="flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-3 sm:py-2.5 rounded-xl font-bold text-base sm:text-xs transition shadow-sm cursor-pointer border border-indigo-500/20 w-full sm:w-auto min-h-[48px] sm:min-h-0">
+                    <button onclick="openInformeGeneralModal()" class="flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-3 sm:py-2.5 rounded-xl font-bold text-base sm:text-xs transition shadow-sm cursor-pointer border border-indigo-500/20 w-full sm:w-auto min-h-[48px] sm:min-h-0">
                         <svg class="h-5 w-5 sm:h-4 sm:w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                         </svg>
@@ -1469,6 +1468,205 @@
 
 
 
+                        <div id="estadoResultadosView" class="hidden max-w-7xl mx-auto space-y-8">
+            <!-- P&L Header -->
+            <div class="bg-sky-900 rounded-2xl shadow-xl border border-slate-100 overflow-hidden text-white p-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div>
+                    <h2 class="text-xl font-extrabold tracking-tight flex items-center gap-2">
+                        <svg class="h-6 w-6 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 002 2h2a2 2 0 002-2z"></path>
+                        </svg>
+                        Módulo de Estado de Resultados y Análisis de Variación
+                    </h2>
+                    <p class="text-xs text-sky-300 mt-1">Análisis financiero consolidado y seguimiento de las fluctuaciones de precios de insumos, cultivos y ventas en el tiempo.</p>
+                </div>
+                <span class="px-3 py-1 bg-sky-800 text-sky-300 text-[11px] font-bold uppercase tracking-wider rounded-full border border-sky-700/50">Análisis Financiero Activo</span>
+            </div>
+
+            <!-- Resumen de Utilidades (Consolidated P&L Cards) -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-5">
+                <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex flex-col justify-between">
+                    <div>
+                        <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Ventas Totales</span>
+                        <h2 class="text-xl sm:text-2xl font-extrabold text-emerald-600 mt-1" id="plVentas">$0</h2>
+                    </div>
+                    <p class="text-[10px] text-slate-400 mt-2">Ingresos totales brutos obtenidos.</p>
+                </div>
+                <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex flex-col justify-between">
+                    <div>
+                        <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Costos Iniciales</span>
+                        <h2 class="text-xl sm:text-2xl font-extrabold text-slate-800 mt-1" id="plCostosIniciales">$0</h2>
+                    </div>
+                    <p class="text-[10px] text-slate-400 mt-2">Inversión inicial en establecimiento.</p>
+                </div>
+                <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex flex-col justify-between">
+                    <div>
+                        <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Gastos de Desarrollo</span>
+                        <h2 class="text-xl sm:text-2xl font-extrabold text-slate-800 mt-1" id="plCostosDesarrollo">$0</h2>
+                    </div>
+                    <p class="text-[10px] text-slate-400 mt-2">Costos operacionales y labores.</p>
+                </div>
+                <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex flex-col justify-between">
+                    <div>
+                        <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Utilidad Neta General</span>
+                        <h2 class="text-xl sm:text-2xl font-extrabold text-sky-600 mt-1" id="plUtilidad">$0</h2>
+                    </div>
+                    <p class="text-[10px] text-slate-400 mt-2">Rentabilidad neta global consolidada.</p>
+                </div>
+            </div>
+
+            <!-- Sección: Análisis de Variación de Precios -->
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+                <div class="p-6 border-b border-slate-100 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-slate-50/50">
+                    <div>
+                        <h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                            <span class="p-1.5 bg-sky-100 text-sky-800 rounded-lg">
+                                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+                                </svg>
+                            </span>
+                            Análisis Cronológico y Variación de Precios por Ítem
+                        </h3>
+                        <p class="text-xs text-slate-400 mt-1">Selecciona un cultivo, insumo o producto para analizar la variación de sus precios de compra o venta a lo largo del tiempo.</p>
+                    </div>
+
+                    <!-- Selector de Items -->
+                    <div class="w-full md:w-80">
+                        <label for="variationItemSelector" class="sr-only">Seleccionar Ítem</label>
+                        <select id="variationItemSelector" onchange="renderPriceVariationDetail()" class="block w-full rounded-xl border-slate-200 bg-white py-2.5 px-3 text-slate-800 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 text-xs font-bold cursor-pointer border shadow-sm">
+                            <!-- Se poblará dinámicamente con todos los conceptos únicos -->
+                        </select>
+                    </div>
+                </div>
+
+                <div class="p-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Metrics Card -->
+                    <div class="lg:col-span-1 space-y-4">
+                        <div class="bg-slate-50 border border-slate-100 rounded-2xl p-5 space-y-4">
+                            <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400">Indicadores de Variación</h4>
+
+                            <div class="grid grid-cols-2 gap-4">
+                                <div class="bg-white rounded-xl p-3 border border-slate-100 shadow-sm text-center">
+                                    <span class="text-[10px] text-slate-400 font-bold block uppercase">Mínimo</span>
+                                    <span class="text-sm font-extrabold text-slate-800 block mt-1" id="varMin">$0</span>
+                                </div>
+                                <div class="bg-white rounded-xl p-3 border border-slate-100 shadow-sm text-center">
+                                    <span class="text-[10px] text-slate-400 font-bold block uppercase">Máximo</span>
+                                    <span class="text-sm font-extrabold text-slate-800 block mt-1" id="varMax">$0</span>
+                                </div>
+                            </div>
+                            <div class="bg-white rounded-xl p-4 border border-slate-100 shadow-sm text-center">
+                                <span class="text-[10px] text-slate-400 font-bold block uppercase">Promedio General</span>
+                                <span class="text-base font-black text-slate-800 block mt-1" id="varAverage">$0</span>
+                            </div>
+                            <div class="bg-white rounded-xl p-4 border border-slate-100 shadow-sm text-center flex flex-col justify-center items-center">
+                                <span class="text-[10px] text-slate-400 font-bold block uppercase">Variación Porcentual</span>
+                                <span class="text-lg font-black block mt-1 text-slate-900" id="varPct">0%</span>
+                                <span id="varTrendBadge" class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold mt-2 bg-slate-100 text-slate-800">Estable</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Chronological Table List -->
+                    <div class="lg:col-span-2">
+                        <div class="border border-slate-100 rounded-2xl overflow-hidden">
+                            <div class="overflow-y-auto max-h-[300px]">
+                                <table class="min-w-full divide-y divide-slate-100 text-sm">
+                                    <thead class="bg-slate-50 sticky top-0">
+                                        <tr>
+                                            <th scope="col" class="px-4 py-3 text-left text-xs font-bold text-slate-400 uppercase tracking-wider">Fecha</th>
+                                            <th scope="col" class="px-4 py-3 text-left text-xs font-bold text-slate-400 uppercase tracking-wider">Lote</th>
+                                            <th scope="col" class="px-4 py-3 text-right text-xs font-bold text-slate-400 uppercase tracking-wider">Precio / Costo (COP)</th>
+                                            <th scope="col" class="px-4 py-3 text-left text-xs font-bold text-slate-400 uppercase tracking-wider font-mono">Código Seguimiento</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-slate-100 bg-white" id="varHistoryTableBody">
+                                        <!-- Se poblará dinámicamente con JS -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+
+                        <div id="obligacionesFormView" class="hidden max-w-2xl mx-auto space-y-8">
+            <!-- Header -->
+            <div class="bg-violet-900 rounded-2xl shadow-xl border border-slate-100 overflow-hidden text-white p-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div>
+                    <h2 class="text-xl font-extrabold tracking-tight flex items-center gap-2">
+                        <svg class="h-6 w-6 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path>
+                        </svg>
+                        Registro de Préstamos y Obligaciones Bancarias
+                    </h2>
+                    <p class="text-xs text-violet-200 mt-1">Ingresa la información financiera de tus obligaciones y créditos bancarios de manera detallada.</p>
+                </div>
+                <span class="px-3 py-1 bg-violet-800 text-violet-300 text-[11px] font-bold uppercase tracking-wider rounded-full border border-violet-700/50">Módulo de Créditos</span>
+            </div>
+
+            <!-- Form Card -->
+            <div class="bg-white rounded-3xl shadow-xl border border-slate-100 overflow-hidden">
+                <div id="loanAlert" class="hidden mx-6 mt-4 p-4 rounded-xl flex items-center">
+                    <svg class="h-5 w-5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" id="loanAlertIconPath"></path>
+                    </svg>
+                    <span id="loanAlertMsg" class="text-xs font-bold"></span>
+                </div>
+
+                <form id="loanForm" onsubmit="handleObligacionesSubmit(event)" class="p-6 space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div>
+                            <label class="block text-xs font-extrabold text-slate-500 uppercase tracking-wider mb-2">Entidad / Banco *</label>
+                            <input type="text" id="loanBanco" required placeholder="p.ej. Banco Agrario, Bancolombia" class="block w-full rounded-xl border-slate-200 bg-white py-2.5 px-4 text-slate-800 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-violet-500 text-sm font-semibold border shadow-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-extrabold text-slate-500 uppercase tracking-wider mb-2">Tipo de Préstamo / Línea *</label>
+                            <input type="text" id="loanTipo" required placeholder="p.ej. Fomento, Capital de Trabajo" class="block w-full rounded-xl border-slate-200 bg-white py-2.5 px-4 text-slate-800 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-violet-500 text-sm font-semibold border shadow-sm">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                        <div>
+                            <label class="block text-xs font-extrabold text-slate-500 uppercase tracking-wider mb-2">Valor Prestado (COP) *</label>
+                            <input type="number" step="any" id="loanValor" required min="0" placeholder="0" oninput="calculateLoanBalance()" class="block w-full rounded-xl border-slate-200 bg-white py-2.5 px-4 text-slate-800 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-violet-500 text-sm font-semibold border shadow-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-extrabold text-slate-500 uppercase tracking-wider mb-2">Pago Cuotas / Abonos (COP) *</label>
+                            <input type="number" step="any" id="loanPago" required min="0" placeholder="0" oninput="calculateLoanBalance()" class="block w-full rounded-xl border-slate-200 bg-white py-2.5 px-4 text-slate-800 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-violet-500 text-sm font-semibold border shadow-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-extrabold text-slate-500 uppercase tracking-wider mb-2">Saldo por Pagar (COP)</label>
+                            <input type="text" id="loanSaldo" readonly placeholder="$0" class="block w-full rounded-xl border-slate-100 bg-slate-50 py-2.5 px-4 text-slate-500 font-bold text-sm border shadow-sm outline-none">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-extrabold text-slate-500 uppercase tracking-wider mb-2">Notas / Condiciones del Crédito</label>
+                        <textarea id="loanNotas" rows="3" placeholder="Ingresa detalles sobre tasa de interés, amortización, garantías..." class="block w-full rounded-xl border-slate-200 bg-white py-3 px-4 text-slate-800 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-violet-500 text-sm font-semibold border shadow-sm"></textarea>
+                    </div>
+
+                    <div class="flex flex-col sm:flex-row justify-end items-center gap-3 pt-4 border-t border-slate-100">
+                        <button type="button" onclick="showView('dashboard')" class="w-full sm:w-auto px-5 py-2.5 rounded-xl text-slate-500 hover:bg-slate-100 font-bold text-sm transition duration-150 ease-in-out border border-slate-200 cursor-pointer text-center">
+                            Cancelar
+                        </button>
+                        <button type="submit" class="w-full sm:w-auto flex justify-center items-center gap-2 bg-violet-600 hover:bg-violet-700 active:bg-violet-800 text-white px-6 py-2.5 rounded-xl font-bold text-sm shadow-md transition duration-150 ease-in-out cursor-pointer">
+                            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            Registrar Obligación
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+
+
 
         <div id="cajaGeneralView" class="hidden max-w-7xl mx-auto space-y-8">
     <!-- Header -->
@@ -1643,238 +1841,7 @@
         </form>
     </div>
 
-    <!-- BLOQUE INTEGRADO: INGRESOS EXTERNOS Y METAS DE RECOLECCIÓN CON TIEMPO DEFINIDO -->
-    <div class="border-t-2 border-dashed border-slate-200 dark:border-slate-800 pt-8 space-y-6">
-        <div>
-            <h2 class="text-xl font-extrabold text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
-                <span class="p-1.5 bg-indigo-100 text-indigo-700 rounded-lg">
-                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                    </svg>
-                </span>
-                Gestión de Ingresos Extras y Metas de Recolección (Sinking Fund)
-            </h2>
-            <p class="text-xs text-slate-400 mt-1">Registra aportes externos a la finca, establece metas de ahorro con plazo fijo y visualiza el ritmo necesario por día/semana para cumplirlas.</p>
-        </div>
-
-        <!-- Formulares Integrados: Ingresos Externos & Crear Meta -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <!-- Formulario A: Registrar Ingreso Externo / Extra -->
-            <div class="bg-white dark:bg-slate-900 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 p-6 space-y-4">
-                <div class="border-b border-slate-100 dark:border-slate-800 pb-3">
-                    <h3 class="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                        <span>💰</span> Registrar Ingreso Externo / Extra
-                    </h3>
-                    <p class="text-xs text-slate-400 mt-0.5">Dinero recibido ajeno a las ventas de cultivos de la finca.</p>
-                </div>
-
-                <form id="ingresoExternoForm" onsubmit="handleGuardarIngresoExterno(event)" class="space-y-4">
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-xs font-bold uppercase text-slate-500 dark:text-slate-400 tracking-wider mb-1">Fecha *</label>
-                            <input type="date" id="extIngresoFecha" required class="block w-full rounded-xl border-slate-200 dark:border-slate-700 dark:bg-slate-800 dark:text-white py-2 px-3 text-xs font-semibold focus:ring-2 focus:ring-indigo-500 border shadow-sm">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold uppercase text-slate-500 dark:text-slate-400 tracking-wider mb-1">Fuente / Origen *</label>
-                            <input type="text" id="extIngresoFuente" required placeholder="p.ej. Trabajo externo, Giro, Venta personal..." class="block w-full rounded-xl border-slate-200 dark:border-slate-700 dark:bg-slate-800 dark:text-white py-2 px-3 text-xs font-semibold focus:ring-2 focus:ring-indigo-500 border shadow-sm">
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-xs font-bold uppercase text-slate-500 dark:text-slate-400 tracking-wider mb-1">Monto (COP) *</label>
-                            <div class="relative rounded-xl shadow-sm">
-                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"><span class="text-slate-400 text-xs font-bold">$</span></div>
-                                <input type="number" step="any" id="extIngresoMonto" required min="1" placeholder="0" class="block w-full rounded-xl border-slate-200 dark:border-slate-700 dark:bg-slate-800 dark:text-white py-2 pl-8 pr-3 text-xs font-bold focus:ring-2 focus:ring-indigo-500 border shadow-sm">
-                            </div>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold uppercase text-slate-500 dark:text-slate-400 tracking-wider mb-1">Método de Pago *</label>
-                            <select id="extIngresoMetodo" class="block w-full rounded-xl border-slate-200 dark:border-slate-700 dark:bg-slate-800 dark:text-white py-2 px-3 text-xs font-semibold focus:ring-2 focus:ring-indigo-500 border shadow-sm cursor-pointer">
-                                <option value="Transferencia">Transferencia Bancaria</option>
-                                <option value="Efectivo">Efectivo</option>
-                                <option value="Nequi/Daviplata">Nequi / Daviplata</option>
-                                <option value="Cheque/Otro">Cheque / Otro</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-bold uppercase text-slate-500 dark:text-slate-400 tracking-wider mb-1">Notas / Observaciones</label>
-                        <input type="text" id="extIngresoNotas" placeholder="Notas opcionales..." class="block w-full rounded-xl border-slate-200 dark:border-slate-700 dark:bg-slate-800 dark:text-white py-2 px-3 text-xs font-semibold focus:ring-2 focus:ring-indigo-500 border shadow-sm">
-                    </div>
-
-                    <div class="flex justify-end pt-1">
-                        <button type="submit" class="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2 rounded-xl font-bold text-xs shadow-sm transition cursor-pointer">
-                            + Registrar Ingreso Extra
-                        </button>
-                    </div>
-                </form>
-            </div>
-
-            <!-- Formulario B: Crear Nueva Meta de Recolección -->
-            <div class="bg-white dark:bg-slate-900 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 p-6 space-y-4">
-                <div class="border-b border-slate-100 dark:border-slate-800 pb-3">
-                    <h3 class="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                        <span>🎯</span> Crear Meta de Recolección / Ahorro
-                    </h3>
-                    <p class="text-xs text-slate-400 mt-0.5">Establece un monto objetivo y fecha límite (Fondo de reserva / Inversión).</p>
-                </div>
-
-                <form id="crearMetaForm" onsubmit="handleCrearMeta(event)" class="space-y-4">
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-xs font-bold uppercase text-slate-500 dark:text-slate-400 tracking-wider mb-1">Nombre de la Meta *</label>
-                            <input type="text" id="extMetaNombre" required placeholder="p.ej. Compra Guadañadora, Abono Préstamo..." class="block w-full rounded-xl border-slate-200 dark:border-slate-700 dark:bg-slate-800 dark:text-white py-2 px-3 text-xs font-semibold focus:ring-2 focus:ring-amber-500 border shadow-sm">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold uppercase text-slate-500 dark:text-slate-400 tracking-wider mb-1">Monto Objetivo (COP) *</label>
-                            <div class="relative rounded-xl shadow-sm">
-                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"><span class="text-slate-400 text-xs font-bold">$</span></div>
-                                <input type="number" step="any" id="extMetaMontoObjetivo" required min="1" placeholder="0" class="block w-full rounded-xl border-slate-200 dark:border-slate-700 dark:bg-slate-800 dark:text-white py-2 pl-8 pr-3 text-xs font-bold focus:ring-2 focus:ring-amber-500 border shadow-sm">
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                        <div>
-                            <label class="block text-xs font-bold uppercase text-slate-500 dark:text-slate-400 tracking-wider mb-1">Fecha Límite *</label>
-                            <input type="date" id="extMetaFechaLimite" required class="block w-full rounded-xl border-slate-200 dark:border-slate-700 dark:bg-slate-800 dark:text-white py-2 px-3 text-xs font-semibold focus:ring-2 focus:ring-amber-500 border shadow-sm">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold uppercase text-slate-500 dark:text-slate-400 tracking-wider mb-1">Categoría *</label>
-                            <select id="extMetaCategoria" class="block w-full rounded-xl border-slate-200 dark:border-slate-700 dark:bg-slate-800 dark:text-white py-2 px-3 text-xs font-semibold focus:ring-2 focus:ring-amber-500 border shadow-sm cursor-pointer">
-                                <option value="Maquinaria/Equipos">Maquinaria / Equipos</option>
-                                <option value="Infraestructura">Infraestructura Finca</option>
-                                <option value="Abono a Deuda">Abono a Préstamos/Deuda</option>
-                                <option value="Reserva Emergencias">Fondo de Emergencia</option>
-                                <option value="Insumos Cosecha">Insumos Gran Cosecha</option>
-                                <option value="Otros">Otros Objetivos</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold uppercase text-slate-500 dark:text-slate-400 tracking-wider mb-1">Notas / Detalle</label>
-                            <input type="text" id="extMetaNotas" placeholder="Notas opcionales..." class="block w-full rounded-xl border-slate-200 dark:border-slate-700 dark:bg-slate-800 dark:text-white py-2 px-3 text-xs font-semibold focus:ring-2 focus:ring-amber-500 border shadow-sm">
-                        </div>
-                    </div>
-
-                    <div class="flex justify-end pt-1">
-                        <button type="submit" class="w-full sm:w-auto bg-amber-600 hover:bg-amber-700 text-white px-5 py-2 rounded-xl font-bold text-xs shadow-sm transition cursor-pointer">
-                            + Crear Meta
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-
-        <!-- Formulario C: Aportar a Meta Existente -->
-        <div class="bg-white dark:bg-slate-900 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 p-6 space-y-4">
-            <div class="border-b border-slate-100 dark:border-slate-800 pb-3">
-                <h3 class="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                    <span>📥</span> Registrar Aporte a Meta Activa
-                </h3>
-                <p class="text-xs text-slate-400 mt-0.5">Canaliza fondos (de ingresos externos o caja general) hacia un objetivo activo.</p>
-            </div>
-
-            <form id="aporteMetaForm" onsubmit="handleGuardarAporteMeta(event)" class="space-y-4">
-                <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
-                    <div>
-                        <label class="block text-xs font-bold uppercase text-slate-500 dark:text-slate-400 tracking-wider mb-1">Seleccionar Meta *</label>
-                        <select id="extAporteMetaSelect" required class="block w-full rounded-xl border-slate-200 dark:border-slate-700 dark:bg-slate-800 dark:text-white py-2 px-3 text-xs font-semibold focus:ring-2 focus:ring-emerald-500 border shadow-sm cursor-pointer">
-                            <!-- Se llena dinámicamente -->
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold uppercase text-slate-500 dark:text-slate-400 tracking-wider mb-1">Fecha Aporte *</label>
-                        <input type="date" id="extAporteFecha" required class="block w-full rounded-xl border-slate-200 dark:border-slate-700 dark:bg-slate-800 dark:text-white py-2 px-3 text-xs font-semibold focus:ring-2 focus:ring-emerald-500 border shadow-sm">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold uppercase text-slate-500 dark:text-slate-400 tracking-wider mb-1">Monto (COP) *</label>
-                        <div class="relative rounded-xl shadow-sm">
-                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"><span class="text-slate-400 text-xs font-bold">$</span></div>
-                            <input type="number" step="any" id="extAporteMonto" required min="1" placeholder="0" class="block w-full rounded-xl border-slate-200 dark:border-slate-700 dark:bg-slate-800 dark:text-white py-2 pl-8 pr-3 text-xs font-bold focus:ring-2 focus:ring-emerald-500 border shadow-sm">
-                        </div>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold uppercase text-slate-500 dark:text-slate-400 tracking-wider mb-1">Origen de Fondos</label>
-                        <select id="extAporteOrigen" class="block w-full rounded-xl border-slate-200 dark:border-slate-700 dark:bg-slate-800 dark:text-white py-2 px-3 text-xs font-semibold focus:ring-2 focus:ring-emerald-500 border shadow-sm cursor-pointer">
-                            <option value="Ingreso Externo">Ingreso Externo / Extra</option>
-                            <option value="Caja Real Finca">Caja Real Finca</option>
-                            <option value="Ahorro Personal">Ahorro Personal</option>
-                            <option value="Otro">Otro Origen</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="flex justify-end pt-1">
-                    <button type="submit" class="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2 rounded-xl font-bold text-xs shadow-sm transition cursor-pointer">
-                        + Registrar Aporte
-                    </button>
-                </div>
-            </form>
-        </div>
-
-        <!-- Tarjetas de Metas Activas y Ritmo Calculado -->
-        <div class="space-y-4">
-            <h3 class="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                <span>📊</span> Metas de Ahorro con Avance y Ritmo Necesario
-            </h3>
-            <div id="metasCardsContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <!-- Se llena dinámicamente -->
-            </div>
-        </div>
-
-        <!-- Tablas Históricas: Ingresos Externos & Aportes -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <!-- Historial Ingresos Externos -->
-            <div class="bg-white dark:bg-slate-900 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 overflow-hidden space-y-3 p-5">
-                <div class="border-b border-slate-100 dark:border-slate-800 pb-3 flex justify-between items-center">
-                    <h3 class="text-xs font-bold text-slate-900 dark:text-white">Historial de Ingresos Extras</h3>
-                    <span class="text-[10px] text-indigo-600 font-bold bg-indigo-50 dark:bg-indigo-950 px-2 py-0.5 rounded-full" id="extIngresosCount">0 registros</span>
-                </div>
-                <div class="overflow-x-auto w-full max-h-[250px]">
-                    <table class="min-w-full divide-y divide-slate-100 text-xs">
-                        <thead class="bg-slate-50 dark:bg-slate-800 sticky top-0">
-                            <tr>
-                                <th class="px-3 py-2 text-left font-bold text-slate-400">Fecha</th>
-                                <th class="px-3 py-2 text-left font-bold text-slate-400">Fuente</th>
-                                <th class="px-3 py-2 text-right font-bold text-slate-400">Monto (COP)</th>
-                                <th class="px-3 py-2 text-center font-bold text-slate-400">Método</th>
-                                <th class="px-3 py-2 text-center font-bold text-slate-400">Acción</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-slate-100 dark:divide-slate-800" id="extIngresosTableBody">
-                            <!-- Se llena dinámicamente -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- Historial Aportes -->
-            <div class="bg-white dark:bg-slate-900 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 overflow-hidden space-y-3 p-5">
-                <div class="border-b border-slate-100 dark:border-slate-800 pb-3 flex justify-between items-center">
-                    <h3 class="text-xs font-bold text-slate-900 dark:text-white">Historial de Aportes a Metas</h3>
-                    <span class="text-[10px] text-emerald-600 font-bold bg-emerald-50 dark:bg-emerald-950 px-2 py-0.5 rounded-full" id="extAportesCount">0 aportes</span>
-                </div>
-                <div class="overflow-x-auto w-full max-h-[250px]">
-                    <table class="min-w-full divide-y divide-slate-100 text-xs">
-                        <thead class="bg-slate-50 dark:bg-slate-800 sticky top-0">
-                            <tr>
-                                <th class="px-3 py-2 text-left font-bold text-slate-400">Fecha</th>
-                                <th class="px-3 py-2 text-left font-bold text-slate-400">Meta</th>
-                                <th class="px-3 py-2 text-right font-bold text-slate-400">Aporte (COP)</th>
-                                <th class="px-3 py-2 text-left font-bold text-slate-400">Origen</th>
-                                <th class="px-3 py-2 text-center font-bold text-slate-400">Acción</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-slate-100 dark:divide-slate-800" id="extAportesTableBody">
-                            <!-- Se llena dinámicamente -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </div>
+    <?!= include('ViewExternalIncome'); ?>
 
     <!-- C. Gráficos de Consumo del Hogar -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -1943,203 +1910,6 @@
     </div>
 </div>
 
-                        <div id="obligacionesFormView" class="hidden max-w-2xl mx-auto space-y-8">
-            <!-- Header -->
-            <div class="bg-violet-900 rounded-2xl shadow-xl border border-slate-100 overflow-hidden text-white p-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                <div>
-                    <h2 class="text-xl font-extrabold tracking-tight flex items-center gap-2">
-                        <svg class="h-6 w-6 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path>
-                        </svg>
-                        Registro de Préstamos y Obligaciones Bancarias
-                    </h2>
-                    <p class="text-xs text-violet-200 mt-1">Ingresa la información financiera de tus obligaciones y créditos bancarios de manera detallada.</p>
-                </div>
-                <span class="px-3 py-1 bg-violet-800 text-violet-300 text-[11px] font-bold uppercase tracking-wider rounded-full border border-violet-700/50">Módulo de Créditos</span>
-            </div>
-
-            <!-- Form Card -->
-            <div class="bg-white rounded-3xl shadow-xl border border-slate-100 overflow-hidden">
-                <div id="loanAlert" class="hidden mx-6 mt-4 p-4 rounded-xl flex items-center">
-                    <svg class="h-5 w-5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" id="loanAlertIconPath"></path>
-                    </svg>
-                    <span id="loanAlertMsg" class="text-xs font-bold"></span>
-                </div>
-
-                <form id="loanForm" onsubmit="handleObligacionesSubmit(event)" class="p-6 space-y-6">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                        <div>
-                            <label class="block text-xs font-extrabold text-slate-500 uppercase tracking-wider mb-2">Entidad / Banco *</label>
-                            <input type="text" id="loanBanco" required placeholder="p.ej. Banco Agrario, Bancolombia" class="block w-full rounded-xl border-slate-200 bg-white py-2.5 px-4 text-slate-800 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-violet-500 text-sm font-semibold border shadow-sm">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-extrabold text-slate-500 uppercase tracking-wider mb-2">Tipo de Préstamo / Línea *</label>
-                            <input type="text" id="loanTipo" required placeholder="p.ej. Fomento, Capital de Trabajo" class="block w-full rounded-xl border-slate-200 bg-white py-2.5 px-4 text-slate-800 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-violet-500 text-sm font-semibold border shadow-sm">
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
-                        <div>
-                            <label class="block text-xs font-extrabold text-slate-500 uppercase tracking-wider mb-2">Valor Prestado (COP) *</label>
-                            <input type="number" step="any" id="loanValor" required min="0" placeholder="0" oninput="calculateLoanBalance()" class="block w-full rounded-xl border-slate-200 bg-white py-2.5 px-4 text-slate-800 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-violet-500 text-sm font-semibold border shadow-sm">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-extrabold text-slate-500 uppercase tracking-wider mb-2">Pago Cuotas / Abonos (COP) *</label>
-                            <input type="number" step="any" id="loanPago" required min="0" placeholder="0" oninput="calculateLoanBalance()" class="block w-full rounded-xl border-slate-200 bg-white py-2.5 px-4 text-slate-800 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-violet-500 text-sm font-semibold border shadow-sm">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-extrabold text-slate-500 uppercase tracking-wider mb-2">Saldo por Pagar (COP)</label>
-                            <input type="text" id="loanSaldo" readonly placeholder="$0" class="block w-full rounded-xl border-slate-100 bg-slate-50 py-2.5 px-4 text-slate-500 font-bold text-sm border shadow-sm outline-none">
-                        </div>
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-extrabold text-slate-500 uppercase tracking-wider mb-2">Notas / Condiciones del Crédito</label>
-                        <textarea id="loanNotas" rows="3" placeholder="Ingresa detalles sobre tasa de interés, amortización, garantías..." class="block w-full rounded-xl border-slate-200 bg-white py-3 px-4 text-slate-800 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-violet-500 text-sm font-semibold border shadow-sm"></textarea>
-                    </div>
-
-                    <div class="flex flex-col sm:flex-row justify-end items-center gap-3 pt-4 border-t border-slate-100">
-                        <button type="button" onclick="showView('dashboard')" class="w-full sm:w-auto px-5 py-2.5 rounded-xl text-slate-500 hover:bg-slate-100 font-bold text-sm transition duration-150 ease-in-out border border-slate-200 cursor-pointer text-center">
-                            Cancelar
-                        </button>
-                        <button type="submit" class="w-full sm:w-auto flex justify-center items-center gap-2 bg-violet-600 hover:bg-violet-700 active:bg-violet-800 text-white px-6 py-2.5 rounded-xl font-bold text-sm shadow-md transition duration-150 ease-in-out cursor-pointer">
-                            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                            </svg>
-                            Registrar Obligación
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-
-
-
-
-
-        <div id="estadoResultadosView" class="hidden max-w-7xl mx-auto space-y-8">
-    <!-- P&L Header -->
-    <div class="bg-sky-900 rounded-2xl shadow-xl border border-slate-100 overflow-hidden text-white p-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <div>
-            <h2 class="text-xl font-extrabold tracking-tight flex items-center gap-2">
-                <svg class="h-6 w-6 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 002 2h2a2 2 0 002-2z"></path>
-                </svg>
-                Módulo de Estado de Resultados y Análisis de Variación
-            </h2>
-            <p class="text-xs text-sky-300 mt-1">Análisis financiero consolidado y seguimiento de las fluctuaciones de precios de insumos, cultivos y ventas en el tiempo.</p>
-        </div>
-        <span class="px-3 py-1 bg-sky-800 text-sky-300 text-[11px] font-bold uppercase tracking-wider rounded-full border border-sky-700/50">Análisis Financiero Activo</span>
-    </div>
-
-    <!-- Resumen de Utilidades (Consolidated P&L Cards) -->
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-5">
-        <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex flex-col justify-between">
-            <div>
-                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Ventas Totales</span>
-                <h2 class="text-xl sm:text-2xl font-extrabold text-emerald-600 mt-1" id="plVentas">$0</h2>
-            </div>
-            <p class="text-[10px] text-slate-400 mt-2">Ingresos totales brutos obtenidos.</p>
-        </div>
-        <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex flex-col justify-between">
-            <div>
-                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Costos Iniciales</span>
-                <h2 class="text-xl sm:text-2xl font-extrabold text-slate-800 mt-1" id="plCostosIniciales">$0</h2>
-            </div>
-            <p class="text-[10px] text-slate-400 mt-2">Inversión inicial en establecimiento.</p>
-        </div>
-        <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex flex-col justify-between">
-            <div>
-                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Gastos de Desarrollo</span>
-                <h2 class="text-xl sm:text-2xl font-extrabold text-slate-800 mt-1" id="plCostosDesarrollo">$0</h2>
-            </div>
-            <p class="text-[10px] text-slate-400 mt-2">Costos operacionales y labores.</p>
-        </div>
-        <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex flex-col justify-between">
-            <div>
-                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Utilidad Neta General</span>
-                <h2 class="text-xl sm:text-2xl font-extrabold text-sky-600 mt-1" id="plUtilidad">$0</h2>
-            </div>
-            <p class="text-[10px] text-slate-400 mt-2">Rentabilidad neta global consolidada.</p>
-        </div>
-    </div>
-
-    <!-- Sección: Análisis de Variación de Precios -->
-    <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
-        <div class="p-6 border-b border-slate-100 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-slate-50/50">
-            <div>
-                <h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
-                    <span class="p-1.5 bg-sky-100 text-sky-800 rounded-lg">
-                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
-                        </svg>
-                    </span>
-                    Análisis Cronológico y Variación de Precios por Ítem
-                </h3>
-                <p class="text-xs text-slate-400 mt-1">Selecciona un cultivo, insumo o producto para analizar la variación de sus precios de compra o venta a lo largo del tiempo.</p>
-            </div>
-
-            <!-- Selector de Items -->
-            <div class="w-full md:w-80">
-                <label for="variationItemSelector" class="sr-only">Seleccionar Ítem</label>
-                <select id="variationItemSelector" onchange="renderPriceVariationDetail()" class="block w-full rounded-xl border-slate-200 bg-white py-2.5 px-3 text-slate-800 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 text-xs font-bold cursor-pointer border shadow-sm">
-                    <!-- Se poblará dinámicamente con todos los conceptos únicos -->
-                </select>
-            </div>
-        </div>
-
-        <div class="p-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <!-- Metrics Card -->
-            <div class="lg:col-span-1 space-y-4">
-                <div class="bg-slate-50 border border-slate-100 rounded-2xl p-5 space-y-4">
-                    <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400">Indicadores de Variación</h4>
-
-                    <div class="grid grid-cols-2 gap-4">
-                        <div class="bg-white rounded-xl p-3 border border-slate-100 shadow-sm text-center">
-                            <span class="text-[10px] text-slate-400 font-bold block uppercase">Mínimo</span>
-                            <span class="text-sm font-extrabold text-slate-800 block mt-1" id="varMin">$0</span>
-                        </div>
-                        <div class="bg-white rounded-xl p-3 border border-slate-100 shadow-sm text-center">
-                            <span class="text-[10px] text-slate-400 font-bold block uppercase">Máximo</span>
-                            <span class="text-sm font-extrabold text-slate-800 block mt-1" id="varMax">$0</span>
-                        </div>
-                    </div>
-                    <div class="bg-white rounded-xl p-4 border border-slate-100 shadow-sm text-center">
-                        <span class="text-[10px] text-slate-400 font-bold block uppercase">Promedio General</span>
-                        <span class="text-base font-black text-slate-800 block mt-1" id="varAverage">$0</span>
-                    </div>
-                    <div class="bg-white rounded-xl p-4 border border-slate-100 shadow-sm text-center flex flex-col justify-center items-center">
-                        <span class="text-[10px] text-slate-400 font-bold block uppercase">Variación Porcentual</span>
-                        <span class="text-lg font-black block mt-1 text-slate-900" id="varPct">0%</span>
-                        <span id="varTrendBadge" class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold mt-2 bg-slate-100 text-slate-800">Estable</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Chronological Table List -->
-            <div class="lg:col-span-2">
-                <div class="border border-slate-100 rounded-2xl overflow-hidden">
-                    <div class="overflow-y-auto max-h-[300px]">
-                        <table class="min-w-full divide-y divide-slate-100 text-sm">
-                            <thead class="bg-slate-50 sticky top-0">
-                                <tr>
-                                    <th scope="col" class="px-4 py-3 text-left text-xs font-bold text-slate-400 uppercase tracking-wider">Fecha</th>
-                                    <th scope="col" class="px-4 py-3 text-left text-xs font-bold text-slate-400 uppercase tracking-wider">Lote</th>
-                                    <th scope="col" class="px-4 py-3 text-right text-xs font-bold text-slate-400 uppercase tracking-wider">Precio / Costo (COP)</th>
-                                    <th scope="col" class="px-4 py-3 text-left text-xs font-bold text-slate-400 uppercase tracking-wider font-mono">Código Seguimiento</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-slate-100 bg-white" id="varHistoryTableBody">
-                                <!-- Se poblará dinámicamente con JS -->
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
 
         <div id="mapaLotesView" class="hidden max-w-7xl mx-auto space-y-8">
             <!-- Header -->
@@ -2424,10 +2194,62 @@
 
 
 
-
     </main>
 
-            <!-- MODAL FICHA TÉCNICA DEL LOTE SELECCIONADO -->
+        <!-- MODAL DE PARÁMETROS DINÁMICOS PARA INFORME GENERAL (PDF) -->
+    <div id="modalParametrosInformePDF" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex justify-center items-center z-50 p-3 sm:p-4">
+        <div class="bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-slate-100 dark:border-slate-800 max-w-full sm:max-w-md w-full overflow-hidden p-5 sm:p-6 space-y-5">
+            <div class="flex justify-between items-center border-b border-slate-100 dark:border-slate-800 pb-3">
+                <div class="flex items-center gap-2.5">
+                    <span class="p-2 bg-indigo-100 text-indigo-800 dark:bg-indigo-950 dark:text-indigo-300 rounded-xl">
+                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path>
+                        </svg>
+                    </span>
+                    <div>
+                        <h3 class="font-extrabold text-base text-slate-900 dark:text-white">Parámetros del Informe General</h3>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Ajusta los factores de proyección antes de exportar</p>
+                    </div>
+                </div>
+                <button type="button" onclick="closeInformeGeneralModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-2xl font-bold cursor-pointer">&times;</button>
+            </div>
+
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold uppercase text-slate-700 dark:text-slate-300 tracking-wider mb-1">
+                        Factor de Cosecha Proyectada (Multiplicador x) *
+                    </label>
+                    <input type="number" id="paramFactorCosecha" step="0.1" min="0.1" value="2.8" class="block w-full rounded-xl border-slate-200 dark:border-slate-700 dark:bg-slate-800 dark:text-white py-2.5 px-3 text-sm font-bold focus:ring-2 focus:ring-indigo-500">
+                    <p class="text-[11px] text-slate-400 mt-1">Estimación de multiplicador sobre siembra (Valor por defecto: 2.8x).</p>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold uppercase text-slate-700 dark:text-slate-300 tracking-wider mb-1">
+                        Margen de Ganancia Objetivo (%) *
+                    </label>
+                    <div class="relative">
+                        <input type="number" id="paramMargenGanancia" step="1" min="1" max="99" value="35" class="block w-full rounded-xl border-slate-200 dark:border-slate-700 dark:bg-slate-800 dark:text-white py-2.5 px-3 pr-8 text-sm font-bold focus:ring-2 focus:ring-indigo-500">
+                        <span class="absolute right-3 top-2.5 text-xs font-extrabold text-slate-400">%</span>
+                    </div>
+                    <p class="text-[11px] text-slate-400 mt-1">Margen neto esperado libre de costos (Fórmula: Costo / (1 - Margen%)).</p>
+                </div>
+            </div>
+
+            <div class="flex justify-end gap-3 pt-3 border-t border-slate-100 dark:border-slate-800">
+                <button type="button" onclick="closeInformeGeneralModal()" class="px-4 py-2.5 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 font-bold text-xs transition cursor-pointer">
+                    Cancelar
+                </button>
+                <button type="button" onclick="submitInformeGeneralPDF()" class="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-md transition cursor-pointer flex items-center gap-2">
+                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                    </svg>
+                    Generar PDF
+                </button>
+            </div>
+        </div>
+    </div>
+
+        <!-- MODAL FICHA TÉCNICA DEL LOTE SELECCIONADO -->
     <div id="mapLotModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex justify-center items-center z-50 p-3 sm:p-4">
         <div class="bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-slate-100 dark:border-slate-800 max-w-full sm:max-w-lg w-full overflow-hidden p-4 sm:p-6 space-y-4 sm:space-y-6">
             <div class="flex justify-between items-start border-b border-slate-100 dark:border-slate-800 pb-4">
@@ -2846,7 +2668,6 @@
             <p>Soporte Técnico de Alta Gama • Integrado con Google Apps Script</p>
         </div>
     </footer>
-
 
 
 
@@ -7762,11 +7583,43 @@
             doc.save(filename);
         }
 
-        function exportInformeGeneralPDF() {
+        function openInformeGeneralModal() {
+            const modal = document.getElementById("modalParametrosInformePDF");
+            if (modal) modal.classList.remove("hidden");
+        }
+        window.openInformeGeneralModal = openInformeGeneralModal;
+
+        function closeInformeGeneralModal() {
+            const modal = document.getElementById("modalParametrosInformePDF");
+            if (modal) modal.classList.add("hidden");
+        }
+        window.closeInformeGeneralModal = closeInformeGeneralModal;
+
+        function submitInformeGeneralPDF() {
+            const factorEl = document.getElementById("paramFactorCosecha");
+            const marginEl = document.getElementById("paramMargenGanancia");
+
+            let factor = parseFloat(factorEl ? factorEl.value : 2.8);
+            if (isNaN(factor) || factor <= 0) factor = 2.8;
+
+            let margin = parseFloat(marginEl ? marginEl.value : 35);
+            if (isNaN(margin) || margin <= 0 || margin >= 100) margin = 35;
+
+            closeInformeGeneralModal();
+            exportInformeGeneralPDF(factor, margin);
+        }
+        window.submitInformeGeneralPDF = submitInformeGeneralPDF;
+        window.exportInformeGeneralPDF = exportInformeGeneralPDF;
+
+        function exportInformeGeneralPDF(factorHarvestInput, targetMarginPctInput) {
             if (!window.jspdf || !window.jspdf.jsPDF) {
                 alert("La librería PDF aún no se ha cargado. Por favor intenta de nuevo en unos segundos.");
                 return;
             }
+
+            const factorHarvest = parseFloat(factorHarvestInput) || 2.8;
+            const targetMarginPct = parseFloat(targetMarginPctInput) || 35;
+            const marginDecimal = targetMarginPct / 100;
 
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF('l', 'pt', 'a4'); // Landscape A4 (width: 842pt, height: 595pt)
@@ -7778,12 +7631,13 @@
 
             doc.setTextColor(255, 255, 255);
             doc.setFont('helvetica', 'bold');
-            doc.setFontSize(18);
-            doc.text("FINCA LOS SAUCES", 55, 58);
+            doc.setFontSize(16);
+            doc.text("FINCA LOS SAUCES", 55, 56);
 
-            doc.setFontSize(10);
+            doc.setFontSize(9);
             doc.setFont('helvetica', 'normal');
-            doc.text("INFORME GENERAL EJECUTIVO, PROYECCIÓN DE COSECHA Y OBLIGACIONES", 55, 76);
+            doc.text("INFORME GENERAL EJECUTIVO, PROYECCIÓN DE COSECHA Y OBLIGACIONES", 55, 71);
+            doc.text(`Parámetros: Factor ${factorHarvest}x | Margen Objetivo ${targetMarginPct}%`, 55, 82);
 
             doc.setFontSize(9);
             doc.text(`Fecha de Emisión: ${todayStr}`, 785, 68, { align: 'right' });
@@ -7834,7 +7688,7 @@
             doc.setTextColor(255, 255, 255);
             doc.setFont('helvetica', 'bold');
             doc.setFontSize(11);
-            doc.text("1. LOTES ACTIVOS Y PROYECCIÓN DE COSECHA (FACTOR 2.8X Y MARGEN NETO 35%)", 50, currentY + 15);
+            doc.text(`1. LOTES ACTIVOS Y PROYECCIÓN DE COSECHA (FACTOR ${factorHarvest}X Y MARGEN NETO ${targetMarginPct}%)`, 50, currentY + 15);
 
             currentY += 30;
 
@@ -7862,19 +7716,20 @@
                 const costoTotalAcumulado = valorSemillas + valorOperativosInsumos;
 
                 // Projection calculations:
-                // Cosecha Proyectada: Factor 2.8x on seed quantity/investment
-                const cantidadProyectada = cantidadSemillas * 2.8;
-                const valorCosechaProyectada28x = valorSemillas * 2.8;
+                // Cosecha Proyectada: Factor multiplier on seed quantity/investment
+                const cantidadProyectada = cantidadSemillas * factorHarvest;
+                const valorCosechaProyectadaFactor = valorSemillas * factorHarvest;
 
-                // Valor de Venta Estimado for 35% net profit margin free of all accrued costs:
-                // Formula: Venta Estimada = Costo Total del Lote / (1 - 0.35) = Costo Total / 0.65
-                const valorVentaEstimada35pct = costoTotalAcumulado > 0 ? (costoTotalAcumulado / 0.65) : 0;
+                // Valor de Venta Estimado for target net profit margin free of all accrued costs:
+                // Formula: Venta Estimada = Costo Total del Lote / (1 - marginDecimal)
+                const denominator = (1 - marginDecimal);
+                const valorVentaEstimadaMargin = (costoTotalAcumulado > 0 && denominator > 0) ? (costoTotalAcumulado / denominator) : 0;
 
                 totalInversionSemillasGlobal += valorSemillas;
                 totalCantidadSemillasGlobal += cantidadSemillas;
                 totalGastosOperativosGlobal += valorOperativosInsumos;
                 totalCostoAcumuladoGlobal += costoTotalAcumulado;
-                totalVentaEstimadaGlobal += valorVentaEstimada35pct;
+                totalVentaEstimadaGlobal += valorVentaEstimadaMargin;
 
                 sec1Rows.push({
                     lote: loteName,
@@ -7883,8 +7738,8 @@
                     semillaCantidad: `${cantidadSemillas.toLocaleString('es-CO')} ${unidadSemillas}`,
                     operativosInsumos: formatCOP(valorOperativosInsumos),
                     costoTotal: formatCOP(costoTotalAcumulado),
-                    cosechaProyectada28x: `${cantidadProyectada.toLocaleString('es-CO')} ${unidadSemillas} (${formatCOP(valorCosechaProyectada28x)})`,
-                    ventaEstimada35pct: formatCOP(valorVentaEstimada35pct)
+                    cosechaProyectadaFactor: `${cantidadProyectada.toLocaleString('es-CO')} ${unidadSemillas} (${formatCOP(valorCosechaProyectadaFactor)})`,
+                    ventaEstimadaMargin: formatCOP(valorVentaEstimadaMargin)
                 });
             });
 
@@ -7897,8 +7752,8 @@
                     { header: 'Cantidad Semillas', dataKey: 'semillaCantidad' },
                     { header: 'Operativos e Insumos', dataKey: 'operativosInsumos' },
                     { header: 'Costo Total Acumulado', dataKey: 'costoTotal' },
-                    { header: 'Cosecha Proyectada (2.8x)', dataKey: 'cosechaProyectada28x' },
-                    { header: 'Venta Est. (Margen 35%)', dataKey: 'ventaEstimada35pct' }
+                    { header: `Cosecha Proyectada (${factorHarvest}x)`, dataKey: 'cosechaProyectadaFactor' },
+                    { header: `Venta Est. (Margen ${targetMarginPct}%)`, dataKey: 'ventaEstimadaMargin' }
                 ],
                 body: sec1Rows,
                 startY: currentY,
@@ -7912,8 +7767,8 @@
                     semillaCantidad: { halign: 'center' },
                     operativosInsumos: { halign: 'right' },
                     costoTotal: { halign: 'right', fontStyle: 'bold' },
-                    cosechaProyectada28x: { halign: 'center', textColor: [180, 83, 9] },
-                    ventaEstimada35pct: { halign: 'right', fontStyle: 'bold', textColor: [4, 120, 87] }
+                    cosechaProyectadaFactor: { halign: 'center', textColor: [180, 83, 9] },
+                    ventaEstimadaMargin: { halign: 'right', fontStyle: 'bold', textColor: [4, 120, 87] }
                 }
             });
 
@@ -7942,7 +7797,7 @@
                     { metric: 'Cantidad Total de Semillas Activas Sembradas', val: `${totalCantidadSemillasGlobal.toLocaleString('es-CO')} Unidades/Atados` },
                     { metric: 'Valor Financiero Total Invertido en Semillas Activas', val: formatCOP(totalInversionSemillasGlobal) },
                     { metric: 'Costo Total Operacional Acumulado (Semillas + Insumos + Labor)', val: formatCOP(totalCostoAcumuladoGlobal) },
-                    { metric: 'Valor Total de Venta Proyectado (Obteniendo Margen Neto 35%)', val: formatCOP(totalVentaEstimadaGlobal) }
+                    { metric: `Valor Total de Venta Proyectado (Obteniendo Margen Neto ${targetMarginPct}%)`, val: formatCOP(totalVentaEstimadaGlobal) }
                 ],
                 startY: currentY,
                 margin: { left: 40, right: 40 },
@@ -8122,7 +7977,7 @@
                 doc.setLineWidth(0.5);
                 doc.line(40, 565, 802, 565);
 
-                doc.text("Finca Los Sauces • Sistema de Control Operativo, Técnico y Financiero", 40, 580);
+                doc.text(`Finca Los Sauces • Sistema de Control Operativo, Técnico y Financiero (Proyección: Factor ${factorHarvest}x, Margen ${targetMarginPct}%)`, 40, 580);
                 doc.text(`Página ${i} de ${pageCount}`, 802, 580, { align: 'right' });
             }
 

@@ -4894,11 +4894,43 @@
             doc.save(filename);
         }
 
-        function exportInformeGeneralPDF() {
+        function openInformeGeneralModal() {
+            const modal = document.getElementById("modalParametrosInformePDF");
+            if (modal) modal.classList.remove("hidden");
+        }
+        window.openInformeGeneralModal = openInformeGeneralModal;
+
+        function closeInformeGeneralModal() {
+            const modal = document.getElementById("modalParametrosInformePDF");
+            if (modal) modal.classList.add("hidden");
+        }
+        window.closeInformeGeneralModal = closeInformeGeneralModal;
+
+        function submitInformeGeneralPDF() {
+            const factorEl = document.getElementById("paramFactorCosecha");
+            const marginEl = document.getElementById("paramMargenGanancia");
+
+            let factor = parseFloat(factorEl ? factorEl.value : 2.8);
+            if (isNaN(factor) || factor <= 0) factor = 2.8;
+
+            let margin = parseFloat(marginEl ? marginEl.value : 35);
+            if (isNaN(margin) || margin <= 0 || margin >= 100) margin = 35;
+
+            closeInformeGeneralModal();
+            exportInformeGeneralPDF(factor, margin);
+        }
+        window.submitInformeGeneralPDF = submitInformeGeneralPDF;
+        window.exportInformeGeneralPDF = exportInformeGeneralPDF;
+
+        function exportInformeGeneralPDF(factorHarvestInput, targetMarginPctInput) {
             if (!window.jspdf || !window.jspdf.jsPDF) {
                 alert("La librería PDF aún no se ha cargado. Por favor intenta de nuevo en unos segundos.");
                 return;
             }
+
+            const factorHarvest = parseFloat(factorHarvestInput) || 2.8;
+            const targetMarginPct = parseFloat(targetMarginPctInput) || 35;
+            const marginDecimal = targetMarginPct / 100;
 
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF('l', 'pt', 'a4'); // Landscape A4 (width: 842pt, height: 595pt)
@@ -4910,12 +4942,13 @@
 
             doc.setTextColor(255, 255, 255);
             doc.setFont('helvetica', 'bold');
-            doc.setFontSize(18);
-            doc.text("FINCA LOS SAUCES", 55, 58);
+            doc.setFontSize(16);
+            doc.text("FINCA LOS SAUCES", 55, 56);
 
-            doc.setFontSize(10);
+            doc.setFontSize(9);
             doc.setFont('helvetica', 'normal');
-            doc.text("INFORME GENERAL EJECUTIVO, PROYECCIÓN DE COSECHA Y OBLIGACIONES", 55, 76);
+            doc.text("INFORME GENERAL EJECUTIVO, PROYECCIÓN DE COSECHA Y OBLIGACIONES", 55, 71);
+            doc.text(`Parámetros: Factor ${factorHarvest}x | Margen Objetivo ${targetMarginPct}%`, 55, 82);
 
             doc.setFontSize(9);
             doc.text(`Fecha de Emisión: ${todayStr}`, 785, 68, { align: 'right' });
@@ -4966,7 +4999,7 @@
             doc.setTextColor(255, 255, 255);
             doc.setFont('helvetica', 'bold');
             doc.setFontSize(11);
-            doc.text("1. LOTES ACTIVOS Y PROYECCIÓN DE COSECHA (FACTOR 2.8X Y MARGEN NETO 35%)", 50, currentY + 15);
+            doc.text(`1. LOTES ACTIVOS Y PROYECCIÓN DE COSECHA (FACTOR ${factorHarvest}X Y MARGEN NETO ${targetMarginPct}%)`, 50, currentY + 15);
 
             currentY += 30;
 
@@ -4994,19 +5027,20 @@
                 const costoTotalAcumulado = valorSemillas + valorOperativosInsumos;
 
                 // Projection calculations:
-                // Cosecha Proyectada: Factor 2.8x on seed quantity/investment
-                const cantidadProyectada = cantidadSemillas * 2.8;
-                const valorCosechaProyectada28x = valorSemillas * 2.8;
+                // Cosecha Proyectada: Factor multiplier on seed quantity/investment
+                const cantidadProyectada = cantidadSemillas * factorHarvest;
+                const valorCosechaProyectadaFactor = valorSemillas * factorHarvest;
 
-                // Valor de Venta Estimado for 35% net profit margin free of all accrued costs:
-                // Formula: Venta Estimada = Costo Total del Lote / (1 - 0.35) = Costo Total / 0.65
-                const valorVentaEstimada35pct = costoTotalAcumulado > 0 ? (costoTotalAcumulado / 0.65) : 0;
+                // Valor de Venta Estimado for target net profit margin free of all accrued costs:
+                // Formula: Venta Estimada = Costo Total del Lote / (1 - marginDecimal)
+                const denominator = (1 - marginDecimal);
+                const valorVentaEstimadaMargin = (costoTotalAcumulado > 0 && denominator > 0) ? (costoTotalAcumulado / denominator) : 0;
 
                 totalInversionSemillasGlobal += valorSemillas;
                 totalCantidadSemillasGlobal += cantidadSemillas;
                 totalGastosOperativosGlobal += valorOperativosInsumos;
                 totalCostoAcumuladoGlobal += costoTotalAcumulado;
-                totalVentaEstimadaGlobal += valorVentaEstimada35pct;
+                totalVentaEstimadaGlobal += valorVentaEstimadaMargin;
 
                 sec1Rows.push({
                     lote: loteName,
@@ -5015,8 +5049,8 @@
                     semillaCantidad: `${cantidadSemillas.toLocaleString('es-CO')} ${unidadSemillas}`,
                     operativosInsumos: formatCOP(valorOperativosInsumos),
                     costoTotal: formatCOP(costoTotalAcumulado),
-                    cosechaProyectada28x: `${cantidadProyectada.toLocaleString('es-CO')} ${unidadSemillas} (${formatCOP(valorCosechaProyectada28x)})`,
-                    ventaEstimada35pct: formatCOP(valorVentaEstimada35pct)
+                    cosechaProyectadaFactor: `${cantidadProyectada.toLocaleString('es-CO')} ${unidadSemillas} (${formatCOP(valorCosechaProyectadaFactor)})`,
+                    ventaEstimadaMargin: formatCOP(valorVentaEstimadaMargin)
                 });
             });
 
@@ -5029,8 +5063,8 @@
                     { header: 'Cantidad Semillas', dataKey: 'semillaCantidad' },
                     { header: 'Operativos e Insumos', dataKey: 'operativosInsumos' },
                     { header: 'Costo Total Acumulado', dataKey: 'costoTotal' },
-                    { header: 'Cosecha Proyectada (2.8x)', dataKey: 'cosechaProyectada28x' },
-                    { header: 'Venta Est. (Margen 35%)', dataKey: 'ventaEstimada35pct' }
+                    { header: `Cosecha Proyectada (${factorHarvest}x)`, dataKey: 'cosechaProyectadaFactor' },
+                    { header: `Venta Est. (Margen ${targetMarginPct}%)`, dataKey: 'ventaEstimadaMargin' }
                 ],
                 body: sec1Rows,
                 startY: currentY,
@@ -5044,8 +5078,8 @@
                     semillaCantidad: { halign: 'center' },
                     operativosInsumos: { halign: 'right' },
                     costoTotal: { halign: 'right', fontStyle: 'bold' },
-                    cosechaProyectada28x: { halign: 'center', textColor: [180, 83, 9] },
-                    ventaEstimada35pct: { halign: 'right', fontStyle: 'bold', textColor: [4, 120, 87] }
+                    cosechaProyectadaFactor: { halign: 'center', textColor: [180, 83, 9] },
+                    ventaEstimadaMargin: { halign: 'right', fontStyle: 'bold', textColor: [4, 120, 87] }
                 }
             });
 
@@ -5074,7 +5108,7 @@
                     { metric: 'Cantidad Total de Semillas Activas Sembradas', val: `${totalCantidadSemillasGlobal.toLocaleString('es-CO')} Unidades/Atados` },
                     { metric: 'Valor Financiero Total Invertido en Semillas Activas', val: formatCOP(totalInversionSemillasGlobal) },
                     { metric: 'Costo Total Operacional Acumulado (Semillas + Insumos + Labor)', val: formatCOP(totalCostoAcumuladoGlobal) },
-                    { metric: 'Valor Total de Venta Proyectado (Obteniendo Margen Neto 35%)', val: formatCOP(totalVentaEstimadaGlobal) }
+                    { metric: `Valor Total de Venta Proyectado (Obteniendo Margen Neto ${targetMarginPct}%)`, val: formatCOP(totalVentaEstimadaGlobal) }
                 ],
                 startY: currentY,
                 margin: { left: 40, right: 40 },
@@ -5254,7 +5288,7 @@
                 doc.setLineWidth(0.5);
                 doc.line(40, 565, 802, 565);
 
-                doc.text("Finca Los Sauces • Sistema de Control Operativo, Técnico y Financiero", 40, 580);
+                doc.text(`Finca Los Sauces • Sistema de Control Operativo, Técnico y Financiero (Proyección: Factor ${factorHarvest}x, Margen ${targetMarginPct}%)`, 40, 580);
                 doc.text(`Página ${i} de ${pageCount}`, 802, 580, { align: 'right' });
             }
 
