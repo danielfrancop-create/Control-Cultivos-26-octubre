@@ -195,6 +195,101 @@ function getDashboardData() {
 }
 
 /**
+ * Tareas de Desarrollo por Capas: API Lote Summary
+ * Retorna resumen financiero, costo unitario de producción y rentabilidad real/esperada.
+ */
+function getLoteSummary(loteId, precioMercadoRef) {
+  try {
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var loteTarget = String(loteId || "Lote 1").trim();
+    var precioMercado = Number(precioMercadoRef) || 0;
+
+    var gIni = getSheetData(ss, HOJA_GASTOS_INICIALES);
+    var gDes = getSheetData(ss, HOJA_GASTOS_DESARROLLO);
+    var vts = getSheetData(ss, HOJA_VENTAS);
+
+    // Filter transactions by lote
+    var filterLoteFn = function(item) {
+      var itemLote = String(item.Lote || item.lote || item.Lote_Principal || '').trim();
+      return itemLote === loteTarget || itemLote.indexOf(loteTarget + " ") === 0 || itemLote.indexOf(loteTarget) === 0;
+    };
+
+    var iniFiltered = gIni.filter(filterLoteFn);
+    var desFiltered = gDes.filter(filterLoteFn);
+    var vtsFiltered = vts.filter(filterLoteFn);
+
+    // Costos Acumulados ($C_acumulado)
+    var costoTotalAcumulado = iniFiltered.concat(desFiltered).reduce(function(sum, x) {
+      return sum + (Number(x.Costo_Total_COP || x.costo_total_cop) || 0);
+    }, 0);
+
+    // Unidades / Semillas e Insumos
+    var unidadMedida = "Kg";
+    if (vtsFiltered.length > 0 && vtsFiltered[0].Unidad_Medida) {
+      unidadMedida = String(vtsFiltered[0].Unidad_Medida).trim();
+    } else if (iniFiltered.length > 0 && iniFiltered[0].Unidad_Medida) {
+      unidadMedida = String(iniFiltered[0].Unidad_Medida).trim();
+    }
+
+    // Producción Real y Estimada
+    var produccionReal = vtsFiltered.reduce(function(sum, x) {
+      return sum + (Number(x.Cantidad || x.cantidad || x.Unidades_Cosechadas || x.unidades_cosechadas) || 0);
+    }, 0);
+
+    var semillasCantidad = iniFiltered.reduce(function(sum, x) {
+      return sum + (Number(x.Cantidad || x.cantidad) || 0);
+    }, 0);
+
+    var produccionEstimada = semillasCantidad > 0 ? (semillasCantidad * 2.8) : 2800; // Factor 2.8x default
+
+    var cantidadEfectiva = 0;
+    var tipoProduccion = "ESTIMADO";
+
+    if (produccionReal > 0) {
+      cantidadEfectiva = produccionReal;
+      tipoProduccion = "REAL";
+    } else {
+      cantidadEfectiva = produccionEstimada;
+      tipoProduccion = "ESTIMADO";
+    }
+
+    // Formulas Financieras
+    var costoUnitario = cantidadEfectiva > 0 ? (costoTotalAcumulado / cantidadEfectiva) : 0;
+    var margenUnitario = precioMercado - costoUnitario;
+    var porcentajeRentabilidad = precioMercado > 0 ? ((precioMercado - costoUnitario) / precioMercado) * 100 : 0;
+
+    var estadoRentabilidad = "NEUTRO";
+    if (porcentajeRentabilidad > 0) {
+      estadoRentabilidad = "POSITIVO";
+    } else if (porcentajeRentabilidad < 0) {
+      estadoRentabilidad = "CRITICO";
+    }
+
+    return {
+      success: true,
+      lote_id: loteTarget,
+      costo_total_acumulado: Math.round(costoTotalAcumulado * 100) / 100,
+      unidad_medida: unidadMedida,
+      produccion: {
+        cantidad_efectiva: Math.round(cantidadEfectiva * 100) / 100,
+        tipo: tipoProduccion,
+        produccion_estimada: Math.round(produccionEstimada * 100) / 100,
+        produccion_real: Math.round(produccionReal * 100) / 100
+      },
+      indicadores_rentabilidad: {
+        costo_unitario: Math.round(costoUnitario * 100) / 100,
+        precio_mercado: Math.round(precioMercado * 100) / 100,
+        margen_unitario: Math.round(margenUnitario * 100) / 100,
+        porcentaje_rentabilidad: Math.round(porcentajeRentabilidad * 100) / 100,
+        estado_rentabilidad: estadoRentabilidad
+      }
+    };
+  } catch (err) {
+    return { success: false, error: err.toString() };
+  }
+}
+
+/**
  * Funciones independientes para Gestión de Ingresos Externos y Metas de Recolección
  */
 function registrarIngresoExterno(datos) {

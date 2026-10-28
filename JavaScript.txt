@@ -226,6 +226,73 @@
             return `${isNegative ? '-' : ''}$${formatted}`;
         }
 
+        function updateLoteSummaryMetrics(loteId, calcGastos, calcUnidades, calcPrecioVenta) {
+            const inputPrecio = document.getElementById("inputPrecioMercadoRef");
+            let precioRef = inputPrecio ? parseFloat(inputPrecio.value) : 0;
+            if (isNaN(precioRef) || precioRef <= 0) {
+                precioRef = calcPrecioVenta || 0;
+            }
+
+            const cuEl = document.getElementById("kpiCostoUnitario");
+            const badgeTipoEl = document.getElementById("kpiTipoProduccionBadge");
+            const badgeStatusEl = document.getElementById("kpiStatusRentabilidadBadge");
+            const margenValEl = document.getElementById("kpiMargenUnitarioVal");
+            const pctValEl = document.getElementById("kpiPctRentabilidadVal");
+
+            // Calculate metrics based on current filter state
+            let totalCost = calcGastos !== undefined ? calcGastos : 0;
+            let qty = calcUnidades !== undefined ? calcUnidades : 0;
+            let isEstimated = false;
+
+            if (qty <= 0) {
+                // If real harvest = 0, calculate projected quantity from gastosIniciales * 2.8
+                isEstimated = true;
+                const currentLote = loteId || document.getElementById("filterLote")?.value || "Todos";
+                const iniRecords = (rawData?.gastosIniciales || []).filter(item => isLoteMatch(item.Lote || item.lote, currentLote));
+                const seedQty = iniRecords.reduce((sum, item) => sum + (Number(item.Cantidad || item.cantidad) || 0), 0);
+                qty = seedQty > 0 ? seedQty * 2.8 : 0;
+            }
+
+            const unitCost = qty > 0 ? (totalCost / qty) : 0;
+            const unitMargin = precioRef > 0 ? (precioRef - unitCost) : 0;
+            const pctRentabilidad = unitCost > 0 ? ((unitMargin / unitCost) * 100) : 0;
+
+            let status = "NEUTRO";
+            if (unitMargin > 0) status = "POSITIVO";
+            else if (unitMargin < 0) status = "CRITICO";
+
+            if (cuEl) cuEl.textContent = `${formatCOP(unitCost)} / Kg`;
+
+            if (badgeTipoEl) {
+                badgeTipoEl.textContent = isEstimated ? "ESTIMADO" : "REAL";
+                badgeTipoEl.className = isEstimated ?
+                    "px-2 py-0.5 text-[9px] font-extrabold uppercase rounded-full bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300" :
+                    "px-2 py-0.5 text-[9px] font-extrabold uppercase rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300";
+            }
+
+            if (badgeStatusEl) {
+                badgeStatusEl.textContent = `${pctRentabilidad >= 0 ? '+' : ''}${pctRentabilidad.toFixed(1)}% (${status})`;
+                if (status === "POSITIVO") {
+                    badgeStatusEl.className = "p-2 bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400 rounded-xl text-xs font-black uppercase";
+                } else if (status === "CRITICO") {
+                    badgeStatusEl.className = "p-2 bg-rose-50 text-rose-700 dark:bg-rose-950 dark:text-rose-400 rounded-xl text-xs font-black uppercase";
+                } else {
+                    badgeStatusEl.className = "p-2 bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 rounded-xl text-xs font-black uppercase";
+                }
+            }
+
+            if (margenValEl) {
+                margenValEl.textContent = formatCOP(unitMargin);
+                margenValEl.className = unitMargin >= 0 ? "text-emerald-600 dark:text-emerald-400 font-extrabold" : "text-rose-600 dark:text-rose-400 font-extrabold";
+            }
+
+            if (pctValEl) {
+                pctValEl.textContent = `${pctRentabilidad.toFixed(1)}%`;
+                pctValEl.className = pctRentabilidad >= 0 ? "text-emerald-600 font-extrabold" : "text-rose-600 font-extrabold";
+            }
+        }
+        window.updateLoteSummaryMetrics = updateLoteSummaryMetrics;
+
         function updateSyncTimestamp(customDateStr) {
             let formattedTime = "";
             if (customDateStr) {
@@ -640,15 +707,8 @@
                 }
             }
 
-            // Tarjeta 2: Costo Promedio por Unidad Cosechada
-            const kpiCostoUnitarioEl = document.getElementById("kpiCostoUnitario");
-            if (kpiCostoUnitarioEl) {
-                kpiCostoUnitarioEl.textContent = totalUnidades > 0 ? `${formatCOP(costoUnitario)} / Unidad` : "$0 / Unidad";
-            }
-            const kpiCostoUnitarioSubtextEl = document.getElementById("kpiCostoUnitarioSubtext");
-            if (kpiCostoUnitarioSubtextEl) {
-                kpiCostoUnitarioSubtextEl.innerHTML = `Venta Prom: <span class="font-bold text-slate-800 dark:text-slate-100">${formatCOP(precioVentaPromedio)}</span> | Margen: <span class="font-bold ${margenUnitario >= 0 ? 'text-emerald-600' : 'text-rose-600'}">${formatCOP(margenUnitario)}</span>`;
-            }
+            // Tarjeta 2: Costo Unitario de Producción y Rentabilidad
+            updateLoteSummaryMetrics(selectedLote, gastosTotales, totalUnidades, precioVentaPromedio);
 
             // Tarjeta 3: Margen ROI (%)
             const kpiRoiEl = document.getElementById("kpiRoi");
