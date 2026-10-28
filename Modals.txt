@@ -19,6 +19,32 @@
             <div class="space-y-4">
                 <div>
                     <label class="block text-xs font-bold uppercase text-slate-700 dark:text-slate-300 tracking-wider mb-1">
+                        Selección de Lote / Alcance *
+                    </label>
+                    <select id="paramLoteInforme" class="block w-full rounded-xl border-slate-200 dark:border-slate-700 dark:bg-slate-800 dark:text-white py-2.5 px-3 text-sm font-bold focus:ring-2 focus:ring-indigo-500 cursor-pointer">
+                        <option value="Todos">Todos los Lotes (Informe General Consolidado)</option>
+                        <option value="Lote 1">Lote 1</option>
+                        <option value="Lote 2">Lote 2</option>
+                        <option value="Lote 3">Lote 3</option>
+                        <option value="Lote 4">Lote 4</option>
+                        <option value="Lote 5">Lote 5</option>
+                        <option value="Lote 6">Lote 6</option>
+                        <option value="Lote 7">Lote 7</option>
+                        <option value="Lote 8">Lote 8</option>
+                        <option value="Lote 9">Lote 9</option>
+                        <option value="Lote 10">Lote 10</option>
+                        <option value="Lote 11">Lote 11</option>
+                        <option value="Lote 12">Lote 12</option>
+                        <option value="Lote 13">Lote 13</option>
+                        <option value="Lote 14">Lote 14</option>
+                        <option value="Lote 15">Lote 15</option>
+                        <option value="Lote 16">Lote 16</option>
+                    </select>
+                    <p class="text-[11px] text-slate-400 mt-1">Genera el informe de manera individual por lote o de forma consolidada.</p>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold uppercase text-slate-700 dark:text-slate-300 tracking-wider mb-1">
                         Factor de Cosecha Proyectada (Multiplicador x) *
                     </label>
                     <input type="number" id="paramFactorCosecha" step="0.1" min="0.1" value="2.8" class="block w-full rounded-xl border-slate-200 dark:border-slate-700 dark:bg-slate-800 dark:text-white py-2.5 px-3 text-sm font-bold focus:ring-2 focus:ring-indigo-500">

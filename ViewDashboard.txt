@@ -160,7 +160,7 @@
                 <div class="flex justify-between items-start">
                     <div>
                         <div class="flex items-center gap-2">
-                            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Resumen de Lote</span>
+                            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider" id="kpiResumenLoteTitulo">Resumen de Lote</span>
                             <span id="kpiTipoProduccionBadge" class="inline-flex items-center gap-1 px-2.5 py-0.5 text-[9px] font-extrabold uppercase rounded-full bg-sky-100 text-sky-800 dark:bg-sky-950 dark:text-sky-300 border border-sky-200 dark:border-sky-800">
                                 Basado en Estimación
                             </span>
@@ -177,6 +177,7 @@
                     <div class="space-y-0.5">
                         <span class="text-slate-400 font-bold uppercase tracking-wider block">Costo / Unidad</span>
                         <span id="kpiSideCostoUnitario" class="text-xs font-black text-slate-900 dark:text-white">$0</span>
+                        <span id="kpiUnidadesProyectadasSubtext" class="text-[9px] text-amber-600 dark:text-amber-400 font-bold block mt-0.5">Unidades Proyectadas: 0</span>
                     </div>
                     <div class="space-y-0.5 text-right">
                         <span class="text-slate-400 font-bold uppercase tracking-wider block">Precio Mercado / Unidad</span>

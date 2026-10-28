@@ -227,6 +227,18 @@
         }
 
         function updateLoteSummaryMetrics(loteId, calcGastos, calcUnidades, calcPrecioVenta) {
+            const currentLote = loteId || document.getElementById("filterLote")?.value || "Todos";
+
+            // Dynamic title update when a specific lot is selected
+            const cardTitleEl = document.getElementById("kpiResumenLoteTitulo");
+            if (cardTitleEl) {
+                if (currentLote && currentLote !== "Todos") {
+                    cardTitleEl.textContent = `Resumen de Lote [${currentLote}]`;
+                } else {
+                    cardTitleEl.textContent = "Resumen de Lote";
+                }
+            }
+
             const inputPrecio = document.getElementById("inputPrecioMercadoRef");
             let precioRef = inputPrecio ? parseFloat(inputPrecio.value) : 0;
             if (isNaN(precioRef) || precioRef <= 0) {
@@ -239,6 +251,7 @@
             const badgeStatusEl = document.getElementById("kpiStatusRentabilidadBadge");
             const margenValEl = document.getElementById("kpiMargenUnitarioVal");
             const pctValEl = document.getElementById("kpiPctRentabilidadVal");
+            const projectedUnitsSubtextEl = document.getElementById("kpiUnidadesProyectadasSubtext");
 
             // Calculate metrics based on current filter state
             let totalCost = calcGastos !== undefined ? calcGastos : 0;
@@ -248,7 +261,6 @@
             if (qty <= 0) {
                 // If real harvest = 0, calculate projected quantity from gastosIniciales * 2.8
                 isEstimated = true;
-                const currentLote = loteId || document.getElementById("filterLote")?.value || "Todos";
                 const iniRecords = (rawData?.gastosIniciales || []).filter(item => isLoteMatch(item.Lote || item.lote, currentLote));
                 const seedQty = iniRecords.reduce((sum, item) => sum + (Number(item.Cantidad || item.cantidad) || 0), 0);
                 qty = seedQty > 0 ? seedQty * 2.8 : 0;
@@ -276,7 +288,6 @@
             }
 
             // Detect dynamic unit of measure from active crop / lot records
-            const currentLote = loteId || document.getElementById("filterLote")?.value || "Todos";
             let unidadMedida = "Atados";
 
             if (rawData) {
@@ -298,6 +309,10 @@
 
             if (cuEl) cuEl.textContent = unitCost > 0 ? `${formatCOP(unitCost)} / ${unidadSingular}` : `$0 / ${unidadSingular}`;
             if (sideCuEl) sideCuEl.textContent = `${formatCOP(unitCost)} / ${unidadSingular}`;
+
+            if (projectedUnitsSubtextEl) {
+                projectedUnitsSubtextEl.textContent = `Unidades Proyectadas: ${Math.round(qty).toLocaleString('es-CO')} ${unidadSingular}${qty !== 1 ? 's' : ''}`;
+            }
 
             if (badgeTipoEl) {
                 if (isEstimated) {
@@ -5011,9 +5026,11 @@
         window.closeInformeGeneralModal = closeInformeGeneralModal;
 
         function submitInformeGeneralPDF() {
+            const loteEl = document.getElementById("paramLoteInforme");
             const factorEl = document.getElementById("paramFactorCosecha");
             const marginEl = document.getElementById("paramMargenGanancia");
 
+            let targetLote = loteEl ? loteEl.value : "Todos";
             let factor = parseFloat(factorEl ? factorEl.value : 2.8);
             if (isNaN(factor) || factor <= 0) factor = 2.8;
 
@@ -5021,12 +5038,12 @@
             if (isNaN(margin) || margin <= 0 || margin >= 100) margin = 35;
 
             closeInformeGeneralModal();
-            exportInformeGeneralPDF(factor, margin);
+            exportInformeGeneralPDF(factor, margin, targetLote);
         }
         window.submitInformeGeneralPDF = submitInformeGeneralPDF;
         window.exportInformeGeneralPDF = exportInformeGeneralPDF;
 
-        function exportInformeGeneralPDF(factorHarvestInput, targetMarginPctInput) {
+        function exportInformeGeneralPDF(factorHarvestInput, targetMarginPctInput, targetLoteInput) {
             if (!window.jspdf || !window.jspdf.jsPDF) {
                 alert("La librería PDF aún no se ha cargado. Por favor intenta de nuevo en unos segundos.");
                 return;
@@ -5034,6 +5051,7 @@
 
             const factorHarvest = parseFloat(factorHarvestInput) || 2.8;
             const targetMarginPct = parseFloat(targetMarginPctInput) || 35;
+            const selectedLoteTarget = targetLoteInput || "Todos";
             const marginDecimal = targetMarginPct / 100;
 
             const { jsPDF } = window.jspdf;
@@ -5052,7 +5070,7 @@
             doc.setFontSize(9);
             doc.setFont('helvetica', 'normal');
             doc.text("INFORME GENERAL EJECUTIVO, PROYECCIÓN DE COSECHA Y OBLIGACIONES", 55, 71);
-            doc.text(`Parámetros: Factor ${factorHarvest}x | Margen Objetivo ${targetMarginPct}%`, 55, 82);
+            doc.text(`Parámetros: Alcance: ${selectedLoteTarget} | Factor: ${factorHarvest}x | Margen Objetivo: ${targetMarginPct}%`, 55, 82);
 
             doc.setFontSize(9);
             doc.text(`Fecha de Emisión: ${todayStr}`, 785, 68, { align: 'right' });
@@ -5093,7 +5111,17 @@
                 activeLotsMap["Lote 2"] = "Aguacate Hass";
             }
 
-            const activeLotNames = Object.keys(activeLotsMap).sort();
+            let activeLotNames = Object.keys(activeLotsMap).sort();
+
+            if (selectedLoteTarget && selectedLoteTarget !== "Todos") {
+                activeLotNames = activeLotNames.filter(name => isLoteMatch(name, selectedLoteTarget));
+                if (activeLotNames.length === 0) {
+                    activeLotNames = [selectedLoteTarget];
+                    if (!activeLotsMap[selectedLoteTarget]) {
+                        activeLotsMap[selectedLoteTarget] = "Cultivo Activo";
+                    }
+                }
+            }
 
             // -------------------------------------------------------------
             // SECCIÓN 1: LOTES ACTIVOS Y PROYECCIÓN DE COSECHA
