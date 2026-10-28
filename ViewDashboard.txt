@@ -155,32 +155,43 @@
                 </div>
             </div>
 
-            <!-- Tarjeta 2: Costo Unitario de Producción y Rentabilidad -->
+            <!-- Tarjeta 2: Resumen de Lote (Costo Unitario vs. Precio de Mercado & Rentabilidad) -->
             <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 dark:bg-slate-900 dark:border-slate-800 flex flex-col justify-between hover:shadow-md transition duration-200 space-y-3">
                 <div class="flex justify-between items-start">
                     <div>
                         <div class="flex items-center gap-2">
-                            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Costo Unitario (CU)</span>
-                            <span id="kpiTipoProduccionBadge" class="px-2 py-0.5 text-[9px] font-extrabold uppercase rounded-full bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300">ESTIMADO</span>
+                            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Resumen de Lote</span>
+                            <span id="kpiTipoProduccionBadge" class="inline-flex items-center gap-1 px-2.5 py-0.5 text-[9px] font-extrabold uppercase rounded-full bg-sky-100 text-sky-800 dark:bg-sky-950 dark:text-sky-300 border border-sky-200 dark:border-sky-800">
+                                Basado en Estimación
+                            </span>
                         </div>
                         <h2 class="text-xl sm:text-2xl font-extrabold text-slate-950 dark:text-white mt-1" id="kpiCostoUnitario">$0 / Kg</h2>
                     </div>
-                    <span id="kpiStatusRentabilidadBadge" class="p-2 bg-emerald-50 text-emerald-600 dark:bg-emerald-950 dark:text-emerald-400 rounded-xl text-xs font-bold">
-                        +0%
+                    <span id="kpiStatusRentabilidadBadge" class="px-2.5 py-1.5 rounded-xl text-xs font-black uppercase tracking-wider shadow-xs flex items-center gap-1">
+                        🟢 +0%
                     </span>
                 </div>
 
-                <div class="space-y-1.5 pt-2 border-t border-slate-50 dark:border-slate-800">
-                    <div class="flex items-center justify-between gap-1 text-[10px]">
-                        <label class="font-bold text-slate-500 dark:text-slate-400 uppercase">Precio Mercado Ref:</label>
-                        <div class="relative w-28">
-                            <input type="number" id="inputPrecioMercadoRef" onchange="updateLoteSummaryMetrics()" placeholder="Ej. 1200" class="block w-full rounded-lg border-slate-200 dark:border-slate-700 dark:bg-slate-800 dark:text-white py-1 px-2 text-right text-xs font-extrabold text-emerald-600 focus:ring-1 focus:ring-emerald-500">
+                <!-- Sección Side-by-Side: Costo / Unidad vs. Precio Mercado / Unidad -->
+                <div class="grid grid-cols-2 gap-2 p-2.5 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-100 dark:border-slate-800 text-[10px]">
+                    <div class="space-y-0.5">
+                        <span class="text-slate-400 font-bold uppercase tracking-wider block">Costo / Unidad</span>
+                        <span id="kpiSideCostoUnitario" class="text-xs font-black text-slate-900 dark:text-white">$0</span>
+                    </div>
+                    <div class="space-y-0.5 text-right">
+                        <span class="text-slate-400 font-bold uppercase tracking-wider block">Precio Mercado / Unidad</span>
+                        <div class="flex items-center justify-end gap-1">
+                            <input type="number" id="inputPrecioMercadoRef" onchange="updateLoteSummaryMetrics()" placeholder="Ej. 1200" class="w-20 rounded-lg border-slate-200 dark:border-slate-700 dark:bg-slate-900 dark:text-white py-0.5 px-1.5 text-right text-xs font-black text-emerald-600 focus:ring-1 focus:ring-emerald-500">
+                            <button type="button" onclick="document.getElementById('inputPrecioMercadoRef').focus()" class="p-1 text-slate-400 hover:text-emerald-600 transition" title="Simular Escenario / Editar Precio">
+                                ✏️
+                            </button>
                         </div>
                     </div>
-                    <div class="text-[9px] text-slate-500 dark:text-slate-400 font-semibold flex justify-between" id="kpiCostoUnitarioSubtext">
-                        <span>Margen: <strong id="kpiMargenUnitarioVal" class="text-slate-800 dark:text-white">$0</strong></span>
-                        <span>Rentabilidad: <strong id="kpiPctRentabilidadVal" class="text-emerald-600">0%</strong></span>
-                    </div>
+                </div>
+
+                <div class="text-[9px] text-slate-500 dark:text-slate-400 font-semibold flex justify-between pt-1 border-t border-slate-50 dark:border-slate-800" id="kpiCostoUnitarioSubtext">
+                    <span>Margen Unitario: <strong id="kpiMargenUnitarioVal" class="text-slate-800 dark:text-white">$0</strong></span>
+                    <span>Rentabilidad (%R): <strong id="kpiPctRentabilidadVal" class="text-emerald-600">0%</strong></span>
                 </div>
             </div>
 

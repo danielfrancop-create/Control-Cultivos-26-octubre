@@ -961,32 +961,43 @@ function eliminarUsuario(email) {
                 </div>
             </div>
 
-            <!-- Tarjeta 2: Costo Unitario de Producción y Rentabilidad -->
+            <!-- Tarjeta 2: Resumen de Lote (Costo Unitario vs. Precio de Mercado & Rentabilidad) -->
             <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 dark:bg-slate-900 dark:border-slate-800 flex flex-col justify-between hover:shadow-md transition duration-200 space-y-3">
                 <div class="flex justify-between items-start">
                     <div>
                         <div class="flex items-center gap-2">
-                            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Costo Unitario (CU)</span>
-                            <span id="kpiTipoProduccionBadge" class="px-2 py-0.5 text-[9px] font-extrabold uppercase rounded-full bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300">ESTIMADO</span>
+                            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Resumen de Lote</span>
+                            <span id="kpiTipoProduccionBadge" class="inline-flex items-center gap-1 px-2.5 py-0.5 text-[9px] font-extrabold uppercase rounded-full bg-sky-100 text-sky-800 dark:bg-sky-950 dark:text-sky-300 border border-sky-200 dark:border-sky-800">
+                                Basado en Estimación
+                            </span>
                         </div>
                         <h2 class="text-xl sm:text-2xl font-extrabold text-slate-950 dark:text-white mt-1" id="kpiCostoUnitario">$0 / Kg</h2>
                     </div>
-                    <span id="kpiStatusRentabilidadBadge" class="p-2 bg-emerald-50 text-emerald-600 dark:bg-emerald-950 dark:text-emerald-400 rounded-xl text-xs font-bold">
-                        +0%
+                    <span id="kpiStatusRentabilidadBadge" class="px-2.5 py-1.5 rounded-xl text-xs font-black uppercase tracking-wider shadow-xs flex items-center gap-1">
+                        🟢 +0%
                     </span>
                 </div>
 
-                <div class="space-y-1.5 pt-2 border-t border-slate-50 dark:border-slate-800">
-                    <div class="flex items-center justify-between gap-1 text-[10px]">
-                        <label class="font-bold text-slate-500 dark:text-slate-400 uppercase">Precio Mercado Ref:</label>
-                        <div class="relative w-28">
-                            <input type="number" id="inputPrecioMercadoRef" onchange="updateLoteSummaryMetrics()" placeholder="Ej. 1200" class="block w-full rounded-lg border-slate-200 dark:border-slate-700 dark:bg-slate-800 dark:text-white py-1 px-2 text-right text-xs font-extrabold text-emerald-600 focus:ring-1 focus:ring-emerald-500">
+                <!-- Sección Side-by-Side: Costo / Unidad vs. Precio Mercado / Unidad -->
+                <div class="grid grid-cols-2 gap-2 p-2.5 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-100 dark:border-slate-800 text-[10px]">
+                    <div class="space-y-0.5">
+                        <span class="text-slate-400 font-bold uppercase tracking-wider block">Costo / Unidad</span>
+                        <span id="kpiSideCostoUnitario" class="text-xs font-black text-slate-900 dark:text-white">$0</span>
+                    </div>
+                    <div class="space-y-0.5 text-right">
+                        <span class="text-slate-400 font-bold uppercase tracking-wider block">Precio Mercado / Unidad</span>
+                        <div class="flex items-center justify-end gap-1">
+                            <input type="number" id="inputPrecioMercadoRef" onchange="updateLoteSummaryMetrics()" placeholder="Ej. 1200" class="w-20 rounded-lg border-slate-200 dark:border-slate-700 dark:bg-slate-900 dark:text-white py-0.5 px-1.5 text-right text-xs font-black text-emerald-600 focus:ring-1 focus:ring-emerald-500">
+                            <button type="button" onclick="document.getElementById('inputPrecioMercadoRef').focus()" class="p-1 text-slate-400 hover:text-emerald-600 transition" title="Simular Escenario / Editar Precio">
+                                ✏️
+                            </button>
                         </div>
                     </div>
-                    <div class="text-[9px] text-slate-500 dark:text-slate-400 font-semibold flex justify-between" id="kpiCostoUnitarioSubtext">
-                        <span>Margen: <strong id="kpiMargenUnitarioVal" class="text-slate-800 dark:text-white">$0</strong></span>
-                        <span>Rentabilidad: <strong id="kpiPctRentabilidadVal" class="text-emerald-600">0%</strong></span>
-                    </div>
+                </div>
+
+                <div class="text-[9px] text-slate-500 dark:text-slate-400 font-semibold flex justify-between pt-1 border-t border-slate-50 dark:border-slate-800" id="kpiCostoUnitarioSubtext">
+                    <span>Margen Unitario: <strong id="kpiMargenUnitarioVal" class="text-slate-800 dark:text-white">$0</strong></span>
+                    <span>Rentabilidad (%R): <strong id="kpiPctRentabilidadVal" class="text-emerald-600">0%</strong></span>
                 </div>
             </div>
 
@@ -3576,6 +3587,7 @@ function eliminarUsuario(email) {
             }
 
             const cuEl = document.getElementById("kpiCostoUnitario");
+            const sideCuEl = document.getElementById("kpiSideCostoUnitario");
             const badgeTipoEl = document.getElementById("kpiTipoProduccionBadge");
             const badgeStatusEl = document.getElementById("kpiStatusRentabilidadBadge");
             const margenValEl = document.getElementById("kpiMargenUnitarioVal");
@@ -3595,32 +3607,54 @@ function eliminarUsuario(email) {
                 qty = seedQty > 0 ? seedQty * 2.8 : 0;
             }
 
+            // Division-by-Zero safeguard: Controlled return
             const unitCost = qty > 0 ? (totalCost / qty) : 0;
-            const unitMargin = precioRef > 0 ? (precioRef - unitCost) : 0;
-            const pctRentabilidad = unitCost > 0 ? ((unitMargin / unitCost) * 100) : 0;
+            const unitMargin = (precioRef > 0 && unitCost > 0) ? (precioRef - unitCost) : (precioRef > 0 ? precioRef : 0);
+            // Formula: %R = ((PrecioMercado - CU) / PrecioMercado) * 100
+            const pctRentabilidad = (precioRef > 0) ? (((precioRef - unitCost) / precioRef) * 100) : (unitCost > 0 ? -100 : 0);
 
-            let status = "NEUTRO";
-            if (unitMargin > 0) status = "POSITIVO";
-            else if (unitMargin < 0) status = "CRITICO";
+            // Health Status Color Rules:
+            // 🟢 Verde: %R > 15% (Margen saludable)
+            // 🟡 Amarillo: 0% <= %R <= 15% (Margen en riesgo)
+            // 🔴 Rojo: CU > P_mercado (%R < 0%) (Pérdida / Operando por debajo del costo)
+            let healthColor = "VERDE";
+            if (unitCost > 0 && precioRef > 0 && unitCost > precioRef) {
+                healthColor = "ROJO";
+            } else if (pctRentabilidad >= 0 && pctRentabilidad <= 15) {
+                healthColor = "AMARILLO";
+            } else if (pctRentabilidad < 0) {
+                healthColor = "ROJO";
+            } else {
+                healthColor = "VERDE";
+            }
 
-            if (cuEl) cuEl.textContent = `${formatCOP(unitCost)} / Kg`;
+            if (cuEl) cuEl.textContent = unitCost > 0 ? `${formatCOP(unitCost)} / Kg` : "$0 / Kg";
+            if (sideCuEl) sideCuEl.textContent = formatCOP(unitCost);
 
             if (badgeTipoEl) {
-                badgeTipoEl.textContent = isEstimated ? "ESTIMADO" : "REAL";
-                badgeTipoEl.className = isEstimated ?
-                    "px-2 py-0.5 text-[9px] font-extrabold uppercase rounded-full bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300" :
-                    "px-2 py-0.5 text-[9px] font-extrabold uppercase rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300";
+                if (isEstimated) {
+                    badgeTipoEl.innerHTML = `Basado en Estimación`;
+                    badgeTipoEl.className = "inline-flex items-center gap-1 px-2.5 py-0.5 text-[9px] font-extrabold uppercase rounded-full bg-sky-100 text-sky-800 dark:bg-sky-950 dark:text-sky-300 border border-sky-200 dark:border-sky-800";
+                } else {
+                    badgeTipoEl.innerHTML = `✨ Cosecha Real`;
+                    badgeTipoEl.className = "inline-flex items-center gap-1 px-2.5 py-0.5 text-[9px] font-extrabold uppercase rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800";
+                }
             }
 
             if (badgeStatusEl) {
-                badgeStatusEl.textContent = `${pctRentabilidad >= 0 ? '+' : ''}${pctRentabilidad.toFixed(1)}% (${status})`;
-                if (status === "POSITIVO") {
-                    badgeStatusEl.className = "p-2 bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400 rounded-xl text-xs font-black uppercase";
-                } else if (status === "CRITICO") {
-                    badgeStatusEl.className = "p-2 bg-rose-50 text-rose-700 dark:bg-rose-950 dark:text-rose-400 rounded-xl text-xs font-black uppercase";
-                } else {
-                    badgeStatusEl.className = "p-2 bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 rounded-xl text-xs font-black uppercase";
+                let badgeSymbol = "🟢";
+                let badgeClass = "bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800";
+
+                if (healthColor === "AMARILLO") {
+                    badgeSymbol = "🟡";
+                    badgeClass = "bg-amber-50 text-amber-800 dark:bg-amber-950 dark:text-amber-300 border border-amber-200 dark:border-amber-800";
+                } else if (healthColor === "ROJO") {
+                    badgeSymbol = "🔴";
+                    badgeClass = "bg-rose-50 text-rose-700 dark:bg-rose-950 dark:text-rose-400 border border-rose-200 dark:border-rose-800";
                 }
+
+                badgeStatusEl.textContent = `${badgeSymbol} ${pctRentabilidad >= 0 ? '+' : ''}${pctRentabilidad.toFixed(1)}%`;
+                badgeStatusEl.className = `px-2.5 py-1.5 rounded-xl text-xs font-black uppercase tracking-wider shadow-xs flex items-center gap-1 ${badgeClass}`;
             }
 
             if (margenValEl) {
@@ -3630,7 +3664,7 @@ function eliminarUsuario(email) {
 
             if (pctValEl) {
                 pctValEl.textContent = `${pctRentabilidad.toFixed(1)}%`;
-                pctValEl.className = pctRentabilidad >= 0 ? "text-emerald-600 font-extrabold" : "text-rose-600 font-extrabold";
+                pctValEl.className = healthColor === "ROJO" ? "text-rose-600 font-extrabold" : (healthColor === "AMARILLO" ? "text-amber-600 font-extrabold" : "text-emerald-600 font-extrabold");
             }
         }
         window.updateLoteSummaryMetrics = updateLoteSummaryMetrics;
