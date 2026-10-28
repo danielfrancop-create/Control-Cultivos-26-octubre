@@ -1159,9 +1159,20 @@ function eliminarUsuario(email) {
                     </tbody>
                 </table>
             </div>
-            <div class="p-4 border-t border-slate-100 bg-slate-50/30 flex justify-between items-center text-xs text-slate-400">
+            <div class="p-4 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30 flex flex-col sm:flex-row justify-between items-center gap-3 text-xs text-slate-400">
                 <span id="transaccionesCount">Mostrando 0 registros</span>
-                <span class="font-medium text-emerald-600">Finca Los Sauces</span>
+
+                <!-- Botón de Expansión / Colapso de Transacciones -->
+                <div id="verTodasTransaccionesContainer" class="hidden">
+                    <button type="button" onclick="toggleShowAllTransactions()" id="verTodasTransaccionesBtn" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 font-extrabold text-xs hover:bg-emerald-100 dark:hover:bg-emerald-900/80 transition cursor-pointer border border-emerald-200 dark:border-emerald-800 shadow-2xs">
+                        <span id="verTodasTransaccionesTexto">Ver todas las transacciones</span>
+                        <svg id="verTodasTransaccionesIcono" class="h-4 w-4 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path>
+                        </svg>
+                    </button>
+                </div>
+
+                <span class="font-medium text-emerald-600 dark:text-emerald-400">Finca Los Sauces</span>
             </div>
         </section>
 
@@ -7892,9 +7903,22 @@ function eliminarUsuario(email) {
             return allTx;
         }
 
+        let showAllTransactions = false;
+
+        function toggleShowAllTransactions() {
+            showAllTransactions = !showAllTransactions;
+            const lote = document.getElementById("filterLote")?.value || "Todos";
+            renderTransaccionesTable(lote);
+        }
+        window.toggleShowAllTransactions = toggleShowAllTransactions;
+
         function renderTransaccionesTable(selectedLote) {
             const tableBody = document.getElementById("transaccionesTableBody");
             const countEl = document.getElementById("transaccionesCount");
+            const btnContainer = document.getElementById("verTodasTransaccionesContainer");
+            const btnTexto = document.getElementById("verTodasTransaccionesTexto");
+            const btnIcono = document.getElementById("verTodasTransaccionesIcono");
+
             if (!tableBody || !rawData) return;
             tableBody.innerHTML = "";
 
@@ -7924,7 +7948,9 @@ function eliminarUsuario(email) {
                 });
             }
 
-            if (filtered.length === 0) {
+            const totalFilteredCount = filtered.length;
+
+            if (totalFilteredCount === 0) {
                 const emptyTr = document.createElement("tr");
                 emptyTr.innerHTML = `
                     <td colspan="8" class="text-center py-8 text-slate-400 font-semibold text-xs">
@@ -7936,20 +7962,46 @@ function eliminarUsuario(email) {
                 `;
                 tableBody.appendChild(emptyTr);
                 if (countEl) countEl.textContent = "Mostrando 0 registros";
+                if (btnContainer) btnContainer.classList.add("hidden");
                 return;
             }
 
-            if (countEl) countEl.textContent = `Mostrando ${filtered.length} ${filtered.length === 1 ? 'registro' : 'registros'}`;
+            // Limit display to maximum 4 transactions if expanded state is false
+            let itemsToRender = filtered;
+            const INITIAL_LIMIT = 4;
 
-            // Sort by Date Descending
+            // Sort by Date Descending before slicing
             filtered.sort((a, b) => {
                 if (a.fecha === "-" || !a.fecha) return 1;
                 if (b.fecha === "-" || !b.fecha) return -1;
                 return b.fecha.localeCompare(a.fecha);
             });
 
-            // Render
-            filtered.forEach(tx => {
+            if (!showAllTransactions && totalFilteredCount > INITIAL_LIMIT) {
+                itemsToRender = filtered.slice(0, INITIAL_LIMIT);
+            }
+
+            if (countEl) {
+                countEl.textContent = `Mostrando ${itemsToRender.length} de ${totalFilteredCount} ${totalFilteredCount === 1 ? 'registro' : 'registros'}`;
+            }
+
+            // Manage Expand / Collapse Button UI
+            if (btnContainer) {
+                if (totalFilteredCount > INITIAL_LIMIT) {
+                    btnContainer.classList.remove("hidden");
+                    if (showAllTransactions) {
+                        if (btnTexto) btnTexto.textContent = "Mostrar menos";
+                        if (btnIcono) btnIcono.className = "h-4 w-4 transition-transform duration-200 rotate-180";
+                    } else {
+                        if (btnTexto) btnTexto.textContent = `Ver todas las transacciones (${totalFilteredCount})`;
+                        if (btnIcono) btnIcono.className = "h-4 w-4 transition-transform duration-200";
+                    }
+                } else {
+                    btnContainer.classList.add("hidden");
+                }
+            }
+
+            itemsToRender.forEach(tx => {
                 const tr = document.createElement("tr");
                 tr.className = "hover:bg-slate-50/70 transition duration-150";
 

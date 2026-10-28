@@ -4512,9 +4512,22 @@
             return allTx;
         }
 
+        let showAllTransactions = false;
+
+        function toggleShowAllTransactions() {
+            showAllTransactions = !showAllTransactions;
+            const lote = document.getElementById("filterLote")?.value || "Todos";
+            renderTransaccionesTable(lote);
+        }
+        window.toggleShowAllTransactions = toggleShowAllTransactions;
+
         function renderTransaccionesTable(selectedLote) {
             const tableBody = document.getElementById("transaccionesTableBody");
             const countEl = document.getElementById("transaccionesCount");
+            const btnContainer = document.getElementById("verTodasTransaccionesContainer");
+            const btnTexto = document.getElementById("verTodasTransaccionesTexto");
+            const btnIcono = document.getElementById("verTodasTransaccionesIcono");
+
             if (!tableBody || !rawData) return;
             tableBody.innerHTML = "";
 
@@ -4544,7 +4557,9 @@
                 });
             }
 
-            if (filtered.length === 0) {
+            const totalFilteredCount = filtered.length;
+
+            if (totalFilteredCount === 0) {
                 const emptyTr = document.createElement("tr");
                 emptyTr.innerHTML = `
                     <td colspan="8" class="text-center py-8 text-slate-400 font-semibold text-xs">
@@ -4556,20 +4571,46 @@
                 `;
                 tableBody.appendChild(emptyTr);
                 if (countEl) countEl.textContent = "Mostrando 0 registros";
+                if (btnContainer) btnContainer.classList.add("hidden");
                 return;
             }
 
-            if (countEl) countEl.textContent = `Mostrando ${filtered.length} ${filtered.length === 1 ? 'registro' : 'registros'}`;
+            // Limit display to maximum 4 transactions if expanded state is false
+            let itemsToRender = filtered;
+            const INITIAL_LIMIT = 4;
 
-            // Sort by Date Descending
+            // Sort by Date Descending before slicing
             filtered.sort((a, b) => {
                 if (a.fecha === "-" || !a.fecha) return 1;
                 if (b.fecha === "-" || !b.fecha) return -1;
                 return b.fecha.localeCompare(a.fecha);
             });
 
-            // Render
-            filtered.forEach(tx => {
+            if (!showAllTransactions && totalFilteredCount > INITIAL_LIMIT) {
+                itemsToRender = filtered.slice(0, INITIAL_LIMIT);
+            }
+
+            if (countEl) {
+                countEl.textContent = `Mostrando ${itemsToRender.length} de ${totalFilteredCount} ${totalFilteredCount === 1 ? 'registro' : 'registros'}`;
+            }
+
+            // Manage Expand / Collapse Button UI
+            if (btnContainer) {
+                if (totalFilteredCount > INITIAL_LIMIT) {
+                    btnContainer.classList.remove("hidden");
+                    if (showAllTransactions) {
+                        if (btnTexto) btnTexto.textContent = "Mostrar menos";
+                        if (btnIcono) btnIcono.className = "h-4 w-4 transition-transform duration-200 rotate-180";
+                    } else {
+                        if (btnTexto) btnTexto.textContent = `Ver todas las transacciones (${totalFilteredCount})`;
+                        if (btnIcono) btnIcono.className = "h-4 w-4 transition-transform duration-200";
+                    }
+                } else {
+                    btnContainer.classList.add("hidden");
+                }
+            }
+
+            itemsToRender.forEach(tx => {
                 const tr = document.createElement("tr");
                 tr.className = "hover:bg-slate-50/70 transition duration-150";
 
