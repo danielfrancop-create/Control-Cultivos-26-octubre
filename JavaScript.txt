@@ -655,11 +655,11 @@
         function applyFilters() {
             if (!rawData) return;
             
-            const selectedLote = document.getElementById("filterLote").value;
-            const selectedCultivo = document.getElementById("filterCultivo").value;
+            const selectedLote = document.getElementById("filterLote") ? document.getElementById("filterLote").value : (document.getElementById("loteSelector") ? document.getElementById("loteSelector").value : "Todos");
+            const selectedCultivo = document.getElementById("filterCultivo") ? document.getElementById("filterCultivo").value : "Todos";
             const selectedCiclo = document.getElementById("filterCiclo") ? document.getElementById("filterCiclo").value : "Todos";
-            const fechaDesde = document.getElementById("filterFechaDesde").value;
-            const fechaHasta = document.getElementById("filterFechaHasta").value;
+            const fechaDesde = document.getElementById("filterFechaDesde") ? document.getElementById("filterFechaDesde").value : "";
+            const fechaHasta = document.getElementById("filterFechaHasta") ? document.getElementById("filterFechaHasta").value : "";
 
             // Date validation helper
             const isDateInRange = (dateStr) => {
@@ -820,10 +820,10 @@
             if (!tableBody) return;
             tableBody.innerHTML = "";
 
-            const selectedCultivo = document.getElementById("filterCultivo").value;
+            const selectedCultivo = document.getElementById("filterCultivo") ? document.getElementById("filterCultivo").value : "Todos";
             const selectedCiclo = document.getElementById("filterCiclo") ? document.getElementById("filterCiclo").value : "Todos";
-            const fechaDesde = document.getElementById("filterFechaDesde").value;
-            const fechaHasta = document.getElementById("filterFechaHasta").value;
+            const fechaDesde = document.getElementById("filterFechaDesde") ? document.getElementById("filterFechaDesde").value : "";
+            const fechaHasta = document.getElementById("filterFechaHasta") ? document.getElementById("filterFechaHasta").value : "";
 
             // Date validation helper
             const isDateInRange = (dateStr) => {
@@ -944,10 +944,10 @@
             if (barChartInstance) barChartInstance.destroy();
             if (doughnutChartInstance) doughnutChartInstance.destroy();
 
-            const selectedCultivo = document.getElementById("filterCultivo").value;
+            const selectedCultivo = document.getElementById("filterCultivo") ? document.getElementById("filterCultivo").value : "Todos";
             const selectedCiclo = document.getElementById("filterCiclo") ? document.getElementById("filterCiclo").value : "Todos";
-            const fechaDesde = document.getElementById("filterFechaDesde").value;
-            const fechaHasta = document.getElementById("filterFechaHasta").value;
+            const fechaDesde = document.getElementById("filterFechaDesde") ? document.getElementById("filterFechaDesde").value : "";
+            const fechaHasta = document.getElementById("filterFechaHasta") ? document.getElementById("filterFechaHasta").value : "";
 
             // Date validation helper
             const isDateInRange = (dateStr) => {

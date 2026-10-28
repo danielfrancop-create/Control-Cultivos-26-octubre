@@ -1,107 +1,13 @@
                 <div id="dashboardView" class="space-y-8">
         
-        <!-- BARRA DE FILTROS GLOBALES Y ACCIONES -->
-        <div class="bg-white rounded-2xl p-4 sm:p-6 shadow-sm border border-slate-100 dark:bg-slate-900 dark:border-slate-800 space-y-4">
-            <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
-                <div>
-                    <h3 class="text-base font-bold text-slate-950 dark:text-white flex items-center gap-2">
-                        <span class="p-1.5 bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 rounded-lg">
-                            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path>
-                            </svg>
-                        </span>
-                        Filtros Globales y Consolidación
-                    </h3>
-                    <p class="text-xs text-slate-500 dark:text-slate-400">Aplica filtros por fecha, lotes y cultivos para recalcular las métricas y reportes en tiempo real.</p>
-                </div>
-                <!-- Botones de Acción Global -->
-                <div class="flex flex-wrap gap-2 w-full sm:w-auto">
-                    <button onclick="openInformeGeneralModal()" class="flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-3 sm:py-2.5 rounded-xl font-bold text-base sm:text-xs transition shadow-sm cursor-pointer border border-indigo-500/20 w-full sm:w-auto min-h-[48px] sm:min-h-0">
-                        <svg class="h-5 w-5 sm:h-4 sm:w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                        </svg>
-                        Generar Informe General (PDF)
-                    </button>
-                    <button onclick="exportDashboardToPDF()" class="flex items-center justify-center gap-2 bg-rose-600 hover:bg-rose-700 text-white px-4 py-3 sm:py-2.5 rounded-xl font-bold text-base sm:text-xs transition shadow-sm cursor-pointer border border-rose-500/20 w-full sm:w-auto min-h-[48px] sm:min-h-0">
-                        <svg class="h-5 w-5 sm:h-4 sm:w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                        </svg>
-                        Descargar PDF
-                    </button>
-                    <button onclick="exportDashboardToExcel()" class="flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-3 sm:py-2.5 rounded-xl font-bold text-base sm:text-xs transition shadow-sm cursor-pointer border border-emerald-500/20 w-full sm:w-auto min-h-[48px] sm:min-h-0">
-                        <svg class="h-5 w-5 sm:h-4 sm:w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                        </svg>
-                        Exportar Excel
-                    </button>
-                </div>
-            </div>
-
-            <!-- Panel de Controles -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-2 border-t border-slate-100 dark:border-slate-800">
-                <!-- Rango de Fechas -->
-                <div class="space-y-1">
-                    <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Fecha Desde</label>
-                    <input type="date" id="filterFechaDesde" onchange="applyFilters()" class="block w-full rounded-xl border-slate-200 dark:border-slate-700 dark:bg-slate-800 dark:text-white py-3 px-3 text-base sm:text-xs font-semibold focus:ring-2 focus:ring-emerald-500 min-h-[48px] sm:min-h-0">
-                </div>
-                <div class="space-y-1">
-                    <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Fecha Hasta</label>
-                    <input type="date" id="filterFechaHasta" onchange="applyFilters()" class="block w-full rounded-xl border-slate-200 dark:border-slate-700 dark:bg-slate-800 dark:text-white py-3 px-3 text-base sm:text-xs font-semibold focus:ring-2 focus:ring-emerald-500 min-h-[48px] sm:min-h-0">
-                </div>
-                <!-- Dropdown Lote -->
-                <div class="space-y-1">
-                    <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Lote Destino</label>
-                    <select id="filterLote" onchange="syncSelectors('bar')" class="block w-full rounded-xl border-slate-200 dark:border-slate-700 dark:bg-slate-800 dark:text-white py-3 px-3 text-base sm:text-xs font-semibold focus:ring-2 focus:ring-emerald-500 min-h-[48px] sm:min-h-0">
-                        <option value="Todos">Todos los Lotes</option>
-                        <option value="Lote 1">Lote 1</option>
-                        <option value="Lote 2">Lote 2</option>
-                        <option value="Lote 3">Lote 3</option>
-                        <option value="Lote 4">Lote 4</option>
-                        <option value="Lote 5">Lote 5</option>
-                        <option value="Lote 6">Lote 6</option>
-                        <option value="Lote 7">Lote 7</option>
-                        <option value="Lote 8">Lote 8</option>
-                        <option value="Lote 9">Lote 9</option>
-                        <option value="Lote 10">Lote 10</option>
-                        <option value="Lote 11">Lote 11</option>
-                        <option value="Lote 12">Lote 12</option>
-                        <option value="Lote 13">Lote 13</option>
-                        <option value="Lote 14">Lote 14</option>
-                        <option value="Lote 15">Lote 15</option>
-                        <option value="Lote 16">Lote 16</option>
-                    </select>
-                </div>
-                <!-- Dropdown Ciclo de Cultivo (Aparece cuando se selecciona un Lote específico) -->
-                <div id="filterCicloContainer" class="space-y-1 hidden">
-                    <label class="block text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">Ciclo de Cultivo</label>
-                    <select id="filterCiclo" onchange="applyFilters()" class="block w-full rounded-xl border-emerald-300 dark:border-emerald-700 dark:bg-slate-800 dark:text-white py-3 px-3 text-base sm:text-xs font-semibold focus:ring-2 focus:ring-emerald-500 min-h-[48px] sm:min-h-0">
-                        <option value="Todos">Todos los Ciclos (Histórico General)</option>
-                    </select>
-                </div>
-                <!-- Dropdown Cultivo -->
-                <div class="space-y-1">
-                    <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Cultivo Principal</label>
-                    <select id="filterCultivo" onchange="applyFilters()" class="block w-full rounded-xl border-slate-200 dark:border-slate-700 dark:bg-slate-800 dark:text-white py-3 px-3 text-base sm:text-xs font-semibold focus:ring-2 focus:ring-emerald-500 min-h-[48px] sm:min-h-0">
-                        <option value="Todos">Todos los Cultivos</option>
-                    </select>
-                </div>
-            </div>
-
-            <!-- Botones de Acceso Rápido -->
-            <div class="flex flex-wrap gap-2 pt-2">
-                <button type="button" onclick="setPeriod('este_mes')" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-lg text-xs font-bold transition">
-                    Este Mes
-                </button>
-                <button type="button" onclick="setPeriod('primer_semestre')" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-lg text-xs font-bold transition">
-                    Primer Semestre (Ene - Jun)
-                </button>
-                <button type="button" onclick="setPeriod('segundo_semestre')" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-lg text-xs font-bold transition">
-                    Segundo Semestre (Jul - Dic)
-                </button>
-                <button type="button" onclick="setPeriod('todo')" class="px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950 dark:hover:bg-emerald-900 text-emerald-700 dark:text-emerald-300 rounded-lg text-xs font-bold transition">
-                    Ver Todo / Limpiar Filtros
-                </button>
-            </div>
+        <!-- BARRA SUPERIOR DE ACCIÓN -->
+        <div class="flex justify-end items-center mb-2">
+            <button onclick="openInformeGeneralModal()" class="flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-xl font-extrabold text-xs shadow-md transition cursor-pointer border border-indigo-500/20">
+                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                </svg>
+                Generar Informe General (PDF)
+            </button>
         </div>
 
         <!-- BARRA DE CONTEO HISTÓRICO DE REGISTROS POR CATEGORÍA -->
