@@ -165,7 +165,7 @@
                                 Basado en Estimación
                             </span>
                         </div>
-                        <h2 class="text-xl sm:text-2xl font-extrabold text-slate-950 dark:text-white mt-1" id="kpiCostoUnitario">$0 / Kg</h2>
+                        <h2 class="text-xl sm:text-2xl font-extrabold text-slate-950 dark:text-white mt-1" id="kpiCostoUnitario">$0 / Atado</h2>
                     </div>
                     <span id="kpiStatusRentabilidadBadge" class="px-2.5 py-1.5 rounded-xl text-xs font-black uppercase tracking-wider shadow-xs flex items-center gap-1">
                         🟢 +0%

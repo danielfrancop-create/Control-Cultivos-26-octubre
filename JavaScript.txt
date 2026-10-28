@@ -275,8 +275,29 @@
                 healthColor = "VERDE";
             }
 
-            if (cuEl) cuEl.textContent = unitCost > 0 ? `${formatCOP(unitCost)} / Kg` : "$0 / Kg";
-            if (sideCuEl) sideCuEl.textContent = formatCOP(unitCost);
+            // Detect dynamic unit of measure from active crop / lot records
+            const currentLote = loteId || document.getElementById("filterLote")?.value || "Todos";
+            let unidadMedida = "Atados";
+
+            if (rawData) {
+                const vts = (rawData.ventas || []).filter(item => isLoteMatch(item.Lote || item.lote, currentLote));
+                const inis = (rawData.gastosIniciales || []).filter(item => isLoteMatch(item.Lote || item.lote, currentLote));
+                if (vts.length > 0 && (vts[0].Unidad_Medida || vts[0].unidad_medida)) {
+                    unidadMedida = vts[0].Unidad_Medida || vts[0].unidad_medida;
+                } else if (inis.length > 0 && (inis[0].Unidad_Medida || inis[0].unidad_medida)) {
+                    unidadMedida = inis[0].Unidad_Medida || inis[0].unidad_medida;
+                }
+            }
+
+            // Standardize singular form for UI display (e.g. "Atados" -> "Atado", "Bultos" -> "Bulto", "Kg" -> "Kg")
+            let unidadSingular = unidadMedida.trim();
+            if (unidadSingular.toLowerCase() === "atados") unidadSingular = "Atado";
+            else if (unidadSingular.toLowerCase() === "bultos") unidadSingular = "Bulto";
+            else if (unidadSingular.toLowerCase() === "unidades") unidadSingular = "Unidad";
+            else if (unidadSingular.endsWith("s") && unidadSingular.length > 3) unidadSingular = unidadSingular.slice(0, -1);
+
+            if (cuEl) cuEl.textContent = unitCost > 0 ? `${formatCOP(unitCost)} / ${unidadSingular}` : `$0 / ${unidadSingular}`;
+            if (sideCuEl) sideCuEl.textContent = `${formatCOP(unitCost)} / ${unidadSingular}`;
 
             if (badgeTipoEl) {
                 if (isEstimated) {

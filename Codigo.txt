@@ -223,12 +223,12 @@ function getLoteSummary(loteId, precioMercadoRef) {
       return sum + (Number(x.Costo_Total_COP || x.costo_total_cop) || 0);
     }, 0);
 
-    // Unidades / Semillas e Insumos
-    var unidadMedida = "Kg";
-    if (vtsFiltered.length > 0 && vtsFiltered[0].Unidad_Medida) {
-      unidadMedida = String(vtsFiltered[0].Unidad_Medida).trim();
-    } else if (iniFiltered.length > 0 && iniFiltered[0].Unidad_Medida) {
-      unidadMedida = String(iniFiltered[0].Unidad_Medida).trim();
+    // Unidades / Semillas e Insumos (Detección dinámica de unidad de cultivo ej. Atados, Bultos, Kg)
+    var unidadMedida = "Atados";
+    if (vtsFiltered.length > 0 && (vtsFiltered[0].Unidad_Medida || vtsFiltered[0].unidad_medida)) {
+      unidadMedida = String(vtsFiltered[0].Unidad_Medida || vtsFiltered[0].unidad_medida).trim();
+    } else if (iniFiltered.length > 0 && (iniFiltered[0].Unidad_Medida || iniFiltered[0].unidad_medida)) {
+      unidadMedida = String(iniFiltered[0].Unidad_Medida || iniFiltered[0].unidad_medida).trim();
     }
 
     // Producción Real y Estimada
